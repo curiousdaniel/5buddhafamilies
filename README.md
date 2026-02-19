@@ -49,6 +49,14 @@ npm run build
 npm run preview
 ```
 
+## Deploy to Vercel
+
+1. Connect your GitHub repo to Vercel.
+2. Add `ANTHROPIC_API_KEY` in Vercel: **Project Settings → Environment Variables**.
+3. Deploy. The `api/interpret.js` serverless function will handle interpretation requests.
+
+Local development still uses the Express server (`npm run server`); production uses Vercel's serverless function.
+
 ## Content
 
 The question bank and family profiles use placeholder content. Replace the data in:
