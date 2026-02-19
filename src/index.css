@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-buddha: #E8E8E8;
+  --color-vajra: #4A7BA7;
+  --color-ratna: #C9A227;
+  --color-padma: #B85450;
+  --color-karma: #5A8B5A;
+  --color-gold: #C9A227;
+  --color-gold-light: #E5D68A;
+  --color-dark: #1A1612;
+  --color-dark-lighter: #2A2520;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--color-dark);
+  color: #E8E4E0;
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
