@@ -11,6 +11,7 @@ A web-based quiz application that helps users discover their personal compositio
 - **Share via URL** with scores encoded in query parameters
 - **Download results** as PNG or PDF
 - **Copy share text** for social media
+- **AI interpretation** — personalized written interpretation of results via Claude (streaming)
 
 ## Tech Stack
 
@@ -25,10 +26,21 @@ A web-based quiz application that helps users discover their personal compositio
 
 ## Development
 
+1. Copy `.env.example` to `.env.local` and add your `ANTHROPIC_API_KEY`
+2. Run the API server (required for interpretation feature):
+
+```bash
+npm run server
+```
+
+3. In another terminal, run the dev server:
+
 ```bash
 npm install
 npm run dev
 ```
+
+The Vite dev server proxies `/api` requests to the backend on port 3001.
 
 ## Build
 

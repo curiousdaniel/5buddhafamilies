@@ -11,6 +11,7 @@ import MandalaPortrait from './MandalaPortrait'
 import PrimaryFamilyProfile from './PrimaryFamilyProfile'
 import CombinationSection from './CombinationSection'
 import ExpandableFamilies from './ExpandableFamilies'
+import PersonalInterpretation from './PersonalInterpretation'
 import ExportActions from '../export/ExportActions'
 
 export default function Results() {
@@ -60,6 +61,10 @@ export default function Results() {
           <div className="mt-8">
             <RadarChart percentages={scores.percentages} />
           </div>
+        </Card>
+
+        <Card className="p-8">
+          <PersonalInterpretation scores={scores} />
         </Card>
 
         <Card className="p-8">

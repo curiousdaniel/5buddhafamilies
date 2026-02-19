@@ -8,6 +8,7 @@ interface QuizState {
   currentIndex: number
   setMode: (mode: QuizMode) => void
   setAnswer: (questionId: string, optionIds: string[]) => void
+  fillTestAnswers: (answers: Record<string, string[]>) => void
   toggleOption: (questionId: string, optionId: string) => void
   setCurrentIndex: (index: number) => void
   goNext: () => void
@@ -28,6 +29,7 @@ export const useQuizStore = create<QuizState>()(
       setMode: (mode) => set({ mode, answers: {}, currentIndex: 0 }),
       setAnswer: (questionId, optionIds) =>
         set((s) => ({ answers: { ...s.answers, [questionId]: optionIds } })),
+      fillTestAnswers: (answers) => set({ answers, currentIndex: 0 }),
       toggleOption: (questionId, optionId) =>
         set((s) => {
           const current = s.answers[questionId] ?? []

@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useQuizStore } from '../../stores/quizStore'
+import { getQuestionsByMode } from '../../data/questions'
 import type { QuizMode } from '../../types'
 import Button from '../shared/Button'
 
@@ -12,10 +13,23 @@ const MODES: { value: QuizMode; label: string; description: string }[] = [
 
 export default function QuizStart() {
   const navigate = useNavigate()
-  const { mode, setMode } = useQuizStore()
+  const { mode, setMode, fillTestAnswers } = useQuizStore()
 
   const handleStart = () => {
     if (mode) navigate('/quiz')
+  }
+
+  const handleQuickTest = () => {
+    const selectedMode = mode ?? 'full'
+    setMode(selectedMode)
+    const questions = getQuestionsByMode(selectedMode)
+    const answers: Record<string, string[]> = {}
+    questions.forEach((q, i) => {
+      const optionIndex = i % 5
+      answers[q.id] = [q.options[optionIndex].id]
+    })
+    fillTestAnswers(answers)
+    navigate('/results')
   }
 
   return (
@@ -59,6 +73,14 @@ export default function QuizStart() {
         >
           Begin Quiz
         </Button>
+
+        <button
+          type="button"
+          onClick={handleQuickTest}
+          className="mt-4 text-sm text-gold hover:underline"
+        >
+          Quick test (fill sample answers)
+        </button>
       </div>
     </motion.div>
   )
