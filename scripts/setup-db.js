@@ -17,11 +17,15 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 dotenv.config({ path: '.env.local' })
 dotenv.config()
 
-const url = process.env.SUPABASE_DB_URL || process.env.DATABASE_URL
+const url =
+  process.env.POSTGRES_URL ||
+  process.env.POSTGRES_URL_NON_POOLING ||
+  process.env.POSTGRES_PRISMA_URL ||
+  process.env.SUPABASE_DB_URL ||
+  process.env.DATABASE_URL
 
 if (!url) {
-  console.error('Missing SUPABASE_DB_URL or DATABASE_URL in .env.local')
-  console.error('Get it from: Supabase Dashboard -> Project Settings -> Database -> Connection string (URI)')
+  console.error('Missing POSTGRES_URL (or POSTGRES_URL_NON_POOLING, SUPABASE_DB_URL) in .env.local')
   process.exit(1)
 }
 

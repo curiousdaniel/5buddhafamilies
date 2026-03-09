@@ -1,5 +1,5 @@
 -- Creates the required tables. Two options:
--- 1. Run: npm run db:setup (requires SUPABASE_DB_URL in .env.local)
+-- 1. Run: npm run db:setup (requires POSTGRES_URL in .env.local)
 -- 2. Or run this file in Supabase Dashboard -> SQL Editor
 
 create table if not exists profiles (

@@ -1,8 +1,8 @@
 /**
  * Creates the required tables in Supabase.
- * Protected by SETUP_SECRET. Call: GET /api/setup/schema?secret=YOUR_SETUP_SECRET
+ * Protected by SETUP_SECRET or CRON_SECRET. Call: GET /api/setup/schema?secret=YOUR_SECRET
  *
- * Requires SUPABASE_DB_URL in env (Supabase Dashboard -> Project Settings -> Database -> Connection string URI)
+ * Uses POSTGRES_URL, POSTGRES_URL_NON_POOLING, or POSTGRES_PRISMA_URL (from Vercel when Supabase is linked)
  */
 
 import pg from 'pg'
@@ -49,11 +49,16 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
 
-  const url = process.env.SUPABASE_DB_URL || process.env.DATABASE_URL
+  const url =
+    process.env.POSTGRES_URL ||
+    process.env.POSTGRES_URL_NON_POOLING ||
+    process.env.POSTGRES_PRISMA_URL ||
+    process.env.SUPABASE_DB_URL ||
+    process.env.DATABASE_URL
 
   if (!url) {
     return res.status(500).json({
-      error: 'Missing SUPABASE_DB_URL or DATABASE_URL. Get it from Supabase Dashboard -> Project Settings -> Database -> Connection string (URI)',
+      error: 'Missing POSTGRES_URL (or POSTGRES_URL_NON_POOLING, SUPABASE_DB_URL). Add database env vars in Vercel.',
     })
   }
 
