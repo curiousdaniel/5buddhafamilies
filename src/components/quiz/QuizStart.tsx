@@ -65,22 +65,24 @@ export default function QuizStart() {
           ))}
         </div>
 
-        <Button
-          onClick={handleStart}
-          disabled={!mode}
-          className="w-full"
-          aria-label="Start quiz with selected mode"
-        >
-          Begin Quiz
-        </Button>
+        <div className="space-y-3">
+          <Button
+            onClick={handleStart}
+            disabled={!mode}
+            className="w-full"
+            aria-label="Start quiz with selected mode"
+          >
+            Begin Quiz
+          </Button>
 
-        <button
-          type="button"
-          onClick={handleQuickTest}
-          className="mt-4 text-sm text-gold hover:underline"
-        >
-          Quick test (fill sample answers)
-        </button>
+          <button
+            type="button"
+            onClick={handleQuickTest}
+            className="w-full py-3 text-sm text-gold-light border border-stone-600 rounded-xl hover:border-gold hover:bg-gold/5 transition-colors"
+          >
+            Quick test (fill sample answers)
+          </button>
+        </div>
       </div>
     </motion.div>
   )
