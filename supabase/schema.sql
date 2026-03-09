@@ -1,4 +1,6 @@
--- Run this in your Supabase SQL editor to create the required tables
+-- Creates the required tables. Two options:
+-- 1. Run: npm run db:setup (requires SUPABASE_DB_URL in .env.local)
+-- 2. Or run this file in Supabase Dashboard -> SQL Editor
 
 create table if not exists profiles (
   id uuid primary key default gen_random_uuid(),
