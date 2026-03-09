@@ -30,7 +30,14 @@ export default function Question({ question }: QuestionProps) {
       <h2 className="font-serif text-xl md:text-2xl text-stone-800 dark:text-stone-100 leading-relaxed">
         {question.text}
       </h2>
-      <p className="text-sm text-stone-600 dark:text-stone-500">Select all that apply</p>
+      <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gold/10 border border-gold/30">
+        <span className="text-gold-dark dark:text-gold-light" aria-hidden>
+          ☑
+        </span>
+        <p className="text-sm font-medium text-gold-dark dark:text-gold-light">
+          Select all that apply
+        </p>
+      </div>
       <div className="space-y-3">
         {shuffledOptions.map((opt) => {
           const isChecked = selected.includes(opt.id)
