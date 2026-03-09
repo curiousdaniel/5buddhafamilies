@@ -33,7 +33,7 @@ app.get("/api/setup/schema", (req, res) => setupSchema(req, res))
 app.post("/api/send-test-email", (req, res) => sendTestEmail(req, res))
 
 app.post("/api/interpret", async (req, res) => {
-  const { scores, moduleId, familyA, familyB, context } = req.body
+  const { scores, moduleId, familyA, familyB, context, selectedCategories } = req.body
 
   try {
     let stream
@@ -42,7 +42,7 @@ app.post("/api/interpret", async (req, res) => {
     } else if (moduleId && scores && typeof scores === "object") {
       stream = streamModuleInterpretation(scores, moduleId)
     } else if (scores && typeof scores === "object") {
-      stream = streamInterpretation(scores)
+      stream = streamInterpretation(scores, selectedCategories)
     } else {
       return res.status(400).json({ error: "Invalid request: scores required" })
     }

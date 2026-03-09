@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuizStore } from '../../stores/quizStore'
+import { getCategoryTitle } from '../../data/categories'
 import { useQuizProgress } from '../../hooks/useQuizProgress'
 import { useInterpretation } from '../../hooks/useInterpretation'
 import { useProfileSave } from '../../hooks/useProfileSave'
-import { decodeScoresFromUrl, getModulesFromUrl } from '../../hooks/useShareUrl'
+import { decodeScoresFromUrl, getModulesFromUrl, getCategoriesFromUrl } from '../../hooks/useShareUrl'
 import Card from '../shared/Card'
 import SummaryCard from './SummaryCard'
 import PieChart from './PieChart'
@@ -25,9 +26,13 @@ export default function Results() {
   const scoresFromUrl = useMemo(() => decodeScoresFromUrl(searchString), [searchString])
   const isAdmin = searchParams.get('admin') === 'true'
   const modulesFromUrl = useMemo(() => getModulesFromUrl(searchString), [searchString])
+  const categoriesFromUrl = useMemo(() => getCategoriesFromUrl(searchString), [searchString])
+  const { selectedCategories, setSelectedCategories } = useQuizStore()
 
   const scores = scoresFromUrl ?? quizScores
-  const interpretation = useInterpretation(scores)
+  const categoriesForInterpretation =
+    categoriesFromUrl.length > 0 ? categoriesFromUrl : selectedCategories
+  const interpretation = useInterpretation(scores, categoriesForInterpretation)
   const totalRaw = useMemo(
     () => (scores ? Object.values(scores.raw).reduce((a, b) => a + b, 0) : 0),
     [scores]
@@ -36,10 +41,16 @@ export default function Results() {
     interpretation.status === 'done' || interpretation.status === 'error'
   const [modulesRefreshKey, setModulesRefreshKey] = useState(0)
 
+  useEffect(() => {
+    if (categoriesFromUrl.length > 0) {
+      setSelectedCategories(categoriesFromUrl)
+    }
+  }, [categoriesFromUrl, setSelectedCategories])
   const { profileSlug, saveProfile, updateModule } = useProfileSave(
     scores,
     interpretation.content,
-    interpretationReady
+    interpretationReady,
+    categoriesForInterpretation
   )
   const hasTriggeredSave = useRef(false)
 
@@ -91,6 +102,12 @@ export default function Results() {
           <div className="mt-8">
             <PieChart percentages={scores.percentages} />
           </div>
+          {categoriesForInterpretation.length > 0 && (
+            <p className="mt-6 text-sm text-stone-600 dark:text-stone-500">
+              Based on your responses across:{' '}
+              {categoriesForInterpretation.map(getCategoryTitle).join(', ')}
+            </p>
+          )}
         </Card>
 
         <Card className="p-8">
@@ -130,16 +147,14 @@ export default function Results() {
             modulesRefreshKey={modulesRefreshKey}
             profileSlug={profileSlug ?? undefined}
             isAdmin={isAdmin}
+            selectedCategories={categoriesForInterpretation}
           />
         </Card>
 
         <div className="text-center pb-8">
           <button
             type="button"
-            onClick={() => {
-              useQuizStore.getState().reset()
-              navigate('/')
-            }}
+            onClick={() => navigate('/categories')}
             className="text-gold-dark dark:text-gold hover:text-gold dark:hover:text-gold-light underline"
           >
             Retake Quiz

@@ -61,17 +61,13 @@ export function decodeScoresFromUrl(search: string): FamilyScores | null {
 
 export function useShareUrl(
   scores: FamilyScores | null,
-  completedModuleIds: string[] = []
+  completedModuleIds: string[] = [],
+  selectedCategories: string[] = []
 ) {
   return useMemo(() => {
     if (!scores) return ''
-    const encoded = encodeScoresToUrl(scores.percentages)
-    const base = `${window.location.origin}/results?scores=${encoded}`
-    if (completedModuleIds.length > 0) {
-      return `${base}&modules=${completedModuleIds.join(',')}`
-    }
-    return base
-  }, [scores, completedModuleIds])
+    return buildResultsShareUrl(scores, completedModuleIds, selectedCategories)
+  }, [scores, completedModuleIds, selectedCategories])
 }
 
 export function getModulesFromUrl(search: string): string[] {
@@ -79,4 +75,27 @@ export function getModulesFromUrl(search: string): string[] {
   const modulesParam = params.get('modules')
   if (!modulesParam) return []
   return modulesParam.split(',').filter(Boolean)
+}
+
+export function getCategoriesFromUrl(search: string): string[] {
+  const params = new URLSearchParams(search)
+  const catsParam = params.get('cats')
+  if (!catsParam) return []
+  return catsParam.split(',').filter(Boolean)
+}
+
+export function buildResultsShareUrl(
+  scores: { percentages: Record<string, number> },
+  completedModuleIds: string[] = [],
+  selectedCategories: string[] = []
+): string {
+  const encoded = encodeScoresToUrl(scores.percentages)
+  const params = new URLSearchParams({ scores: encoded })
+  if (completedModuleIds.length > 0) {
+    params.set('modules', completedModuleIds.join(','))
+  }
+  if (selectedCategories.length > 0) {
+    params.set('cats', selectedCategories.join(','))
+  }
+  return `${typeof window !== 'undefined' ? window.location.origin : ''}/results?${params.toString()}`
 }

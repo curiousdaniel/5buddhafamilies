@@ -1,12 +1,14 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import type { QuizMode } from '../types'
+import type { Question } from '../types'
 
 interface QuizState {
-  mode: QuizMode | null
+  selectedCategories: string[]
+  questions: Question[]
   answers: Record<string, string[]>
   currentIndex: number
-  setMode: (mode: QuizMode) => void
+  setSelectedCategories: (categories: string[]) => void
+  setQuestions: (questions: Question[]) => void
   setAnswer: (questionId: string, optionIds: string[]) => void
   fillTestAnswers: (answers: Record<string, string[]>) => void
   toggleOption: (questionId: string, optionId: string) => void
@@ -17,7 +19,8 @@ interface QuizState {
 }
 
 const initialState = {
-  mode: null as QuizMode | null,
+  selectedCategories: [] as string[],
+  questions: [] as Question[],
   answers: {} as Record<string, string[]>,
   currentIndex: 0,
 }
@@ -26,7 +29,10 @@ export const useQuizStore = create<QuizState>()(
   persist(
     (set) => ({
       ...initialState,
-      setMode: (mode) => set({ mode, answers: {}, currentIndex: 0 }),
+      setSelectedCategories: (selectedCategories) =>
+        set({ selectedCategories, answers: {}, currentIndex: 0 }),
+      setQuestions: (questions) =>
+        set({ questions, answers: {}, currentIndex: 0 }),
       setAnswer: (questionId, optionIds) =>
         set((s) => ({ answers: { ...s.answers, [questionId]: optionIds } })),
       fillTestAnswers: (answers) => set({ answers, currentIndex: 0 }),

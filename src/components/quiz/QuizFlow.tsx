@@ -1,29 +1,27 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuizStore } from '../../stores/quizStore'
-import { getQuestionsByMode } from '../../data/questions'
 import Question from './Question'
 import NavBar from './NavBar'
 import ProgressBar from './ProgressBar'
 
 export default function QuizFlow() {
   const navigate = useNavigate()
-  const { mode, currentIndex, setCurrentIndex, goNext, goBack } = useQuizStore()
+  const { questions, currentIndex, setCurrentIndex, goNext, goBack } = useQuizStore()
 
-  const questions = mode ? getQuestionsByMode(mode) : []
   const total = questions.length
   const currentQuestion = questions[currentIndex]
   const isLast = currentIndex === total - 1
 
   useEffect(() => {
-    if (mode === null) {
-      navigate('/')
+    if (total === 0) {
+      navigate('/categories')
       return
     }
-    if (total > 0 && currentIndex >= total) {
+    if (currentIndex >= total) {
       setCurrentIndex(total - 1)
     }
-  }, [mode, currentIndex, total, navigate, setCurrentIndex])
+  }, [total, currentIndex, navigate, setCurrentIndex])
 
   const handleNext = () => {
     if (isLast) {

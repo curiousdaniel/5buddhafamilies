@@ -110,7 +110,20 @@ Write 1–2 paragraphs about the family they scored lowest in. Frame this not as
 - The total length should be substantial — aim for approximately 900–1,200 words. This is a meaningful personal document, not a quick summary.
 - End the final section with a single sentence that lands with warmth and encouragement — something that leaves the reader feeling oriented rather than analyzed.`
 
-function buildUserMessage(scores) {
+const CATEGORY_TITLES = {
+  secular: "Everyday Life",
+  sacred: "Buddhist Practice",
+  embodiment: "Body & Senses",
+  aesthetic: "Aesthetic & Beauty",
+  time: "Your Relationship to Time",
+  falling_apart: "When Things Fall Apart",
+  learning: "Learning & Knowledge",
+  appetite: "Desire & Appetite",
+  humor: "Humor & Play",
+  childhood: "Childhood & Origins",
+}
+
+function buildUserMessage(scores, selectedCategories = []) {
   const lines = [
     "Here are the user's Five Buddha Families scores:",
     "",
@@ -122,17 +135,23 @@ function buildUserMessage(scores) {
     "",
     "Please write their personalized interpretation."
   ]
+  if (Array.isArray(selectedCategories) && selectedCategories.length > 0) {
+    const titles = selectedCategories
+      .map((id) => CATEGORY_TITLES[id] || id)
+      .join(", ")
+    lines.splice(lines.length - 1, 0, "", `These scores are based on the user's responses in the following categories: ${titles}.`)
+  }
   return lines.join("\n")
 }
 
-export async function createInterpretationStream(scores) {
+export async function createInterpretationStream(scores, selectedCategories = []) {
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) {
     throw new Error("ANTHROPIC_API_KEY is not set")
   }
 
   const client = new Anthropic({ apiKey })
-  const userMessage = buildUserMessage(scores)
+  const userMessage = buildUserMessage(scores, selectedCategories)
 
   const stream = await client.messages.create({
     model: "claude-sonnet-4-20250514",
@@ -146,8 +165,8 @@ export async function createInterpretationStream(scores) {
   return stream
 }
 
-export async function* streamInterpretation(scores) {
-  const stream = await createInterpretationStream(scores)
+export async function* streamInterpretation(scores, selectedCategories = []) {
+  const stream = await createInterpretationStream(scores, selectedCategories)
   for await (const event of stream) {
     if (event.type === "content_block_delta" && event.delta?.text) {
       yield event.delta.text

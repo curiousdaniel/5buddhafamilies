@@ -39,7 +39,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Server configuration error' })
   }
 
-  const { scores, primaryFamily, secondaryFamily, coreInterpretation, completedModules = [], quizMode = 'full' } = req.body || {}
+  const { scores, primaryFamily, secondaryFamily, coreInterpretation, completedModules = [], selectedCategories = ['secular', 'sacred'] } = req.body || {}
 
   if (!scores || !primaryFamily || !secondaryFamily || !coreInterpretation) {
     return res.status(400).json({ error: 'Missing required fields: scores, primaryFamily, secondaryFamily, coreInterpretation' })
@@ -68,7 +68,7 @@ export default async function handler(req, res) {
     secondary_family: secondaryFamily,
     core_interpretation: coreInterpretation,
     completed_modules: completedModules,
-    quiz_mode: quizMode,
+    selected_categories: selectedCategories,
     slug,
   })
 

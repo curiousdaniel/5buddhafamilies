@@ -17,6 +17,7 @@ create table if not exists profiles (
   core_interpretation text not null,
   completed_modules jsonb default '[]',
   quiz_mode text not null default 'full',
+  selected_categories jsonb default '["secular","sacred"]',
   slug text unique not null
 );
 create index if not exists profiles_slug_idx on profiles (slug);

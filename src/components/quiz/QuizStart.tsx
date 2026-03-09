@@ -1,38 +1,10 @@
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { useQuizStore } from '../../stores/quizStore'
-import { getQuestionsByMode } from '../../data/questions'
-import type { QuizMode } from '../../types'
 import Button from '../shared/Button'
-
-const MODES: { value: QuizMode; label: string; description: string }[] = [
-  { value: 'secular', label: 'Secular', description: 'Everyday life, work, relationships (24 questions)' },
-  { value: 'sacred', label: 'Sacred', description: 'Meditation, dharma study, practice (21 questions)' },
-  { value: 'full', label: 'Full', description: 'Both secular and sacred (45 questions)' },
-]
+import { CATEGORIES } from '../../data/categories'
 
 export default function QuizStart() {
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const { mode, setMode, fillTestAnswers } = useQuizStore()
-  const showQuickTest = searchParams.get('admin') === 'true'
-
-  const handleStart = () => {
-    if (mode) navigate('/quiz')
-  }
-
-  const handleQuickTest = () => {
-    const selectedMode = mode ?? 'full'
-    setMode(selectedMode)
-    const questions = getQuestionsByMode(selectedMode)
-    const answers: Record<string, string[]> = {}
-    questions.forEach((q, i) => {
-      const optionIndex = i % 5
-      answers[q.id] = [q.options[optionIndex].id]
-    })
-    fillTestAnswers(answers)
-    navigate(showQuickTest ? '/results?admin=true' : '/results')
-  }
 
   return (
     <motion.div
@@ -49,43 +21,23 @@ export default function QuizStart() {
           Discover your personal composition of the Five Buddha Families — an ancient Vajrayana Buddhist framework describing five fundamental energy patterns.
         </p>
 
-        <div className="space-y-3 mb-12">
-          {MODES.map((m) => (
-            <button
-              key={m.value}
-              type="button"
-              onClick={() => setMode(m.value)}
-              className={`w-full text-left p-4 rounded-xl border transition-colors ${
-                mode === m.value
-                  ? 'border-gold bg-gold/10 text-gold-dark dark:text-gold-light'
-                  : 'border-stone-400 dark:border-stone-600 hover:border-stone-500 text-stone-700 dark:text-stone-300'
-              }`}
+        <Button
+          onClick={() => navigate('/categories')}
+          className="w-full mb-6"
+          aria-label="Begin the quiz"
+        >
+          Begin the Quiz
+        </Button>
+
+        <div className="flex flex-wrap justify-center gap-2">
+          {CATEGORIES.map((c) => (
+            <span
+              key={c.id}
+              className="px-2 py-1 text-xs rounded-full bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-400"
             >
-              <span className="font-medium block">{m.label}</span>
-              <span className="text-sm text-stone-600 dark:text-stone-500">{m.description}</span>
-            </button>
+              {c.icon} {c.title}
+            </span>
           ))}
-        </div>
-
-        <div className="space-y-3">
-          <Button
-            onClick={handleStart}
-            disabled={!mode}
-            className="w-full"
-            aria-label="Start quiz with selected mode"
-          >
-            Begin Quiz
-          </Button>
-
-          {showQuickTest && (
-            <button
-              type="button"
-              onClick={handleQuickTest}
-              className="w-full py-3 text-sm text-gold-dark dark:text-gold-light border border-stone-400 dark:border-stone-600 rounded-xl hover:border-gold hover:bg-gold/5 transition-colors"
-            >
-              Quick test (fill sample answers)
-            </button>
-          )}
         </div>
       </div>
     </motion.div>

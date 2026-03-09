@@ -25,6 +25,7 @@ interface ExportActionsProps {
   completedModules?: Array<{ id: string; title: string; content: string }>
   profileSlug?: string
   isAdmin?: boolean
+  selectedCategories?: string[]
 }
 
 export default function ExportActions({
@@ -36,6 +37,7 @@ export default function ExportActions({
   completedModules: completedModulesProp,
   profileSlug,
   isAdmin = false,
+  selectedCategories = [],
 }: ExportActionsProps) {
   const exportCardRef = useRef<HTMLDivElement>(null)
   const canExport = scores && interpretationReady
@@ -77,11 +79,13 @@ export default function ExportActions({
         <ShareButton
           scores={scores}
           completedModuleIds={completedModules.map((m) => m.id)}
+          selectedCategories={selectedCategories}
           shareUrl={shareUrl}
         />
         <CopyShareText
           scores={scores}
           completedModuleIds={completedModules.map((m) => m.id)}
+          selectedCategories={selectedCategories}
           shareUrl={shareUrl}
         />
         <CopyFullReport

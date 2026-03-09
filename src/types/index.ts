@@ -2,6 +2,18 @@ export type FamilyCode = 'buddha' | 'vajra' | 'ratna' | 'padma' | 'karma'
 
 export type QuizMode = 'secular' | 'sacred' | 'full'
 
+export type QuestionCategory =
+  | 'secular'
+  | 'sacred'
+  | 'embodiment'
+  | 'aesthetic'
+  | 'time'
+  | 'falling_apart'
+  | 'learning'
+  | 'appetite'
+  | 'humor'
+  | 'childhood'
+
 export interface Option {
   id: string
   family: FamilyCode
@@ -10,7 +22,7 @@ export interface Option {
 
 export interface Question {
   id: string
-  category: 'secular' | 'sacred'
+  category: QuestionCategory
   text: string
   options: Option[]
 }

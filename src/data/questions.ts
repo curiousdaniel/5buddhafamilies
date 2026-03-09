@@ -1,7 +1,9 @@
 import type { Question } from '../types'
 import type { FamilyCode } from '../types'
+import type { QuizCategoryId } from './categories'
 
-import questionsCsv from '../../five_buddha_families_questions.csv?raw'
+import questionsCsv from '../../five_buddha_families_questions (extra).csv?raw'
+import { shuffle } from '../lib/shuffle'
 
 const FAMILY_MAP: Record<string, FamilyCode> = {
   B: 'buddha',
@@ -11,9 +13,22 @@ const FAMILY_MAP: Record<string, FamilyCode> = {
   K: 'karma',
 }
 
+const CATEGORY_IDS: QuizCategoryId[] = [
+  'secular',
+  'sacred',
+  'embodiment',
+  'aesthetic',
+  'time',
+  'falling_apart',
+  'learning',
+  'appetite',
+  'humor',
+  'childhood',
+]
+
 interface CsvRow {
   question_id: string
-  category: 'secular' | 'sacred'
+  category: string
   question_text: string
   answer_a_text: string
   answer_a_family: string
@@ -63,12 +78,11 @@ function parseCsvLine(line: string): string[] {
   return result
 }
 
-function toQuestionId(csvId: string, category: string): string {
-  const num = parseInt(csvId.replace(/^Q/, ''), 10)
-  if (category === 'secular') {
-    return `sec-${String(num).padStart(2, '0')}`
-  }
-  return `sac-${String(num - 24).padStart(2, '0')}`
+function normalizeCategory(cat: string): QuizCategoryId {
+  const normalized = cat.trim().toLowerCase()
+  return CATEGORY_IDS.includes(normalized as QuizCategoryId)
+    ? (normalized as QuizCategoryId)
+    : 'secular'
 }
 
 function csvRowToQuestion(row: CsvRow): Question {
@@ -80,11 +94,12 @@ function csvRowToQuestion(row: CsvRow): Question {
     { text: row.answer_e_text, family: row.answer_e_family },
   ]
 
-  const id = toQuestionId(row.question_id, row.category)
+  const id = row.question_id
+  const category = normalizeCategory(row.category)
 
   return {
     id,
-    category: row.category,
+    category,
     text: row.question_text,
     options: answers.map((a, i) => ({
       id: `${id}-opt-${i}`,
@@ -94,62 +109,15 @@ function csvRowToQuestion(row: CsvRow): Question {
   }
 }
 
-// Use imported CSV from project root; the ?raw suffix loads file contents as string
 const csvText: string = typeof questionsCsv === 'string' ? questionsCsv : ''
+export const QUESTIONS: Question[] = parseCsv(csvText).map(csvRowToQuestion)
 
-// Embedded fallback if CSV file is missing (enables build without the file)
-const EMBEDDED_CSV = `question_id,category,question_text,answer_a_text,answer_a_family,answer_b_text,answer_b_family,answer_c_text,answer_c_family,answer_d_text,answer_d_family,answer_e_text,answer_e_family
-Q01,secular,"Your home environment most naturally tends toward:","Open and minimal — lots of empty space",B,"Organized and precise — everything has a logical place",V,"Warm and abundant — comfortable furniture, art, rich textures",R,"Beautiful and curated — aesthetically stimulating and colorful",P,"Functional and efficient — set up to help you get things done",K
-Q02,secular,"When your living space gets messy, you:","Don't really notice until it becomes extreme",B,"Feel genuine irritation — disorder disrupts your thinking",V,"Feel unsettled and compensate by adding more comfort items",R,"Lose creative energy — beauty matters to your wellbeing",P,"Clean it immediately because clutter slows you down",K
-Q03,secular,"Your ideal weekend environment is:","Quiet and unhurried with no agenda",B,"Structured — a clear plan with time for reading or study",V,"Gathering with family or close friends over good food",R,"Something aesthetically rich — music, art, nature, or romance",P,"Productive — projects, goals, and checking things off",K
-Q04,secular,"At work, your colleagues would most likely describe you as:","Easy to be around, calm, and not easily rattled",B,"Sharp, principled, and holding high standards",V,"Generous, resourceful, and supportive",R,"Engaging, intuitive, and great with people",P,"Efficient, driven, and someone who gets things done",K
-Q05,secular,"When facing a complex problem, your first instinct is to:","Sit with it and let the answer emerge naturally",B,"Analyze it systematically until you fully understand it",V,"Draw on accumulated knowledge and resources",R,"Sense the emotional or relational dimensions of the problem",P,"Break it into tasks and start moving immediately",K
-Q06,secular,"In group projects, you naturally take the role of:","The stable presence that doesn't create conflict",B,"The one who ensures quality and accuracy",V,"The one who makes sure everyone feels included and cared for",R,"The connector focused on relationships and communication",P,"The one who drives the project to completion",K
-Q07,secular,"Your relationship to deadlines is:","Loose — time is fluid and things get done when they get done",B,"Precise — you plan carefully and hit them exactly",V,"Generous — you prefer having abundant time",R,"Dependent on inspiration — some projects flow, others stall",P,"Urgent — you'd rather finish early than feel behind",K
-Q08,secular,"When you make a mistake at work, your typical response is:","Accept it without much drama and move on slowly",B,"Analyze what went wrong and how to prevent recurrence",V,"Feel embarrassed about your status or reputation",R,"Feel it emotionally and seek reassurance from someone",P,"Fix it immediately and redirect your energy forward",K
-Q09,secular,"At a party with people you don't know, you tend to:","Find a comfortable spot and let people come to you",B,"Observe carefully before engaging — you assess the room first",V,"Play host even if it's not your party",R,"Connect one-on-one in meaningful warm conversation",P,"Work the room and meet as many people as possible",K
-Q10,secular,"In close relationships, your primary need is for:","Space and peace — you need room to just be",B,"Honesty and intellectual respect",V,"Stability, warmth, and material security",R,"Emotional intimacy, connection, and being truly seen",P,"Shared goals and active partnership",K
-Q11,secular,"When a close friend is going through something hard, you:","Offer a quiet non-judgmental presence",B,"Help them think through it clearly and practically",V,"Show up with food, resources, and physical support",R,"Listen deeply and feel it with them emotionally",P,"Help them make a plan and take action",K
-Q12,secular,"Your communication style in conflict tends to be:","Avoidant — you disengage rather than fight",B,"Direct and precise — you state your position clearly",V,"Somewhat territorial — you defend your position with confidence",R,"Emotionally expressive — feelings are central to the discussion",P,"Action-oriented — let's solve this and move on",K
-Q13,secular,"In romantic relationships, you're most drawn to partners who are:","Calm, accepting, and don't demand too much",B,"Intellectually stimulating and honest",V,"Stable, generous, and grounded",R,"Emotionally available, expressive, and magnetic",P,"Ambitious, capable, and active",K
-Q14,secular,"Your relationship to money is best described as:","Indifferent — you have what you need and don't think about it much",B,"Managed and logical — you track it carefully",V,"Abundant-minded — you love having and sharing resources",R,"Variable — you spend freely on beautiful or meaningful things",P,"Strategic — money is fuel for your goals",K
-Q15,secular,"When you receive an unexpected windfall, you're most likely to:","Let it sit — you'll figure it out eventually",B,"Research the best logical use and invest wisely",V,"Use it to create comfort, beauty, or abundance for loved ones",R,"Spend it on an experience that moves you",P,"Immediately deploy it toward a goal or project",K
-Q16,secular,"When making a big life decision, you primarily rely on:","Spacious waiting — you let clarity emerge on its own",B,"Research and logical analysis",V,"Established values and what brings security",R,"Intuition and what feels right emotionally",P,"What moves you toward your goals most effectively",K
-Q17,secular,"When given too many choices, you typically:","Stay with the familiar — change feels unnecessary",B,"Research until you identify the objectively correct one",V,"Choose based on what provides the most richness or value",R,"Choose what feels most beautiful or emotionally resonant",P,"Decide quickly and move on — deliberation wastes time",K
-Q18,secular,"Your ideal vacation looks like:","A peaceful unstructured retreat — nature, stillness, no agenda",B,"A culturally enriching trip with a thoughtful itinerary",V,"A luxurious gathering with loved ones — good food and comfort",R,"An aesthetically immersive adventure — art, music, and beauty",P,"An active goal-oriented trip — hiking peaks or exploring cities",K
-Q19,secular,"Creative projects appeal to you most when they involve:","Open-ended exploration with no fixed outcome",B,"Precision and craft — getting the details exactly right",V,"Creating something rich, abundant, and generous in scale",R,"Deep personal expression and emotional resonance",P,"Building something that functions and accomplishes a goal",K
-Q20,secular,"The kind of art or music you're most drawn to tends to be:","Ambient, spacious, or minimalist",B,"Structured and precise — classical, jazz, or architectural",V,"Rich, layered, and lush — folk, orchestral, or impressionist",R,"Emotionally expressive — romantic, lyrical, or intimate",P,"Energetic and driving — with momentum and purpose",K
-Q21,secular,"When you're stressed or overwhelmed, you tend to:","Shut down — zone out, sleep, or disengage",B,"Become critical and rigid — demanding perfection",V,"Over-accumulate — more food, more things, more reassurance",R,"Seek emotional connection compulsively or become dramatic",P,"Become controlling and compulsively busy",K
-Q22,secular,"Your most recognizable bad habit is:","Ignoring problems until they become unavoidable",B,"Being too critical or intellectually dismissive of others",V,"Being arrogant or boastful without realizing it",R,"Getting too attached or clingy in relationships",P,"Overcommitting and burning out",K
-Q23,secular,"When someone challenges your view, you most often:","Withdraw — it's not worth the energy",B,"Engage sharply and defend your position with logic",V,"Feel your territory is being threatened",R,"Feel personally hurt or misunderstood",P,"Redirect to action — what are we going to do about it?",K
-Q24,secular,"Fear of ________ is most likely to drive your behavior:","Change or disruption",B,"Being wrong or misunderstood",V,"Not having enough — scarcity of any kind",R,"Rejection or abandonment",P,"Failure or being surpassed by others",K
-Q25,sacred,"In sitting meditation, what arises most often for you?","A heavy dull quality — sleepiness or mental fog",B,"A busy analytical mind — lots of commentary and judgment",V,"Restless desire for comfort — physical or mental",R,"Strong emotions or vivid memories and associations",P,"Restlessness and urgency — the feeling that you should be doing something",K
-Q26,sacred,"Your relationship to a consistent meditation schedule is:","It's hard to start but once established you sink into it",B,"You maintain it precisely — you respect the discipline",V,"You practice but comfort sometimes wins out",R,"Your practice ebbs and flows with your emotional state",P,"You tie it to goals — you meditate because it makes you more effective",K
-Q27,sacred,"In meditation retreat, what's most challenging for you?","Resisting the pull into dullness or sleep",B,"Letting go of mental analysis and just being",V,"The austerity — giving up comfort and richness",R,"Emotional intensity — feelings amplify on retreat",P,"Stillness — not doing feels deeply uncomfortable",K
-Q28,sacred,"What most helps your meditation stabilize?","Very simple instruction — just sit",B,"Clear structure and understanding of the technique",V,"Warm community and physical comfort",R,"Heart connection — compassion practices or devotion",P,"A clear purpose and defined practice goal",K
-Q29,sacred,"Your primary way of engaging with Buddhist teachings is:","Absorbing them slowly and letting them permeate over time",B,"Studying texts carefully and understanding the logic precisely",V,"Through the richness of lineage, teacher, and tradition",R,"Through story, poetry, and emotional resonance",P,"By immediately applying teachings practically in your life",K
-Q30,sacred,"What most motivates your Dharma study?","A sense of ease and acceptance — just being with what is",B,"Wanting to understand the nature of mind with precision",V,"Gratitude and devotion to the richness of the tradition",R,"The longing for deeper connection and compassion",P,"Wanting to be of greater benefit and service",K
-Q31,sacred,"When you encounter a teaching that contradicts your current understanding, you:","Let it sit — you'll integrate it eventually",B,"Investigate it rigorously until you resolve the contradiction",V,"Weigh it against established teachings and tradition",R,"Notice how it makes you feel and let that guide you",P,"Ask: how does this change what I should do?",K
-Q32,sacred,"The emotional pattern you most recognize in yourself on the cushion:","Dullness, spacing out, a cottony heaviness",B,"Inner criticism, judgment, or self-righteous mental commentary",V,"Pride or self-importance arising in subtle ways",R,"Strong longing, grasping, intense love or grief",P,"Restlessness or comparison — measuring yourself against others",K
-Q33,sacred,"Which poison feels most sticky or familiar to you?","Ignorance and avoidance",B,"Anger and aversion",V,"Pride and arrogance",R,"Attachment and passion",P,"Jealousy and envy",K
-Q34,sacred,"In contemplating your own neurosis honestly, your ego primarily protects itself through:","Ignoring threats — a kind of heavy denial",B,"Intellectual self-justification — I'm right about this",V,"Accumulating territory — possessions, status, or recognition",R,"Seeking connection and love but with grasping underneath",P,"Achievement — proving worth through doing",K
-Q35,sacred,"Your relationship to your root teacher or primary teacher tends to be:","Respectful but somewhat distant — you process on your own",B,"Intellectually engaged — you ask precise pointed questions",V,"Devotional and warm — you honor the lineage and their role",R,"Heart-centered — the relationship itself is the practice",P,"Goal-oriented — you want to know what to do and how to progress",K
-Q36,sacred,"Which style of practice calls to you most naturally?","Shamatha — calm abiding and just resting",B,"Analytical meditation or Mahamudra inquiry",V,"Offerings, mandala practice, and enrichment pujas",R,"Tonglen, devotional practice, or guru yoga",P,"Completion stage practices, service, or engaged Buddhism",K
-Q37,sacred,"When you receive pointing-out instruction or direct introduction, your experience is most often:","A sense of vast open space — almost like nothing happened",B,"A sharp moment of clarity — you want to understand it precisely",V,"A feeling of richness and profound okayness",R,"A warm heart-opening — sometimes tears arise",P,"A sudden impulse to act or serve",K
-Q38,sacred,"In your dharma community, you most naturally take the role of:","The stable non-reactive presence in the background",B,"The one who upholds standards and clarity of teaching",V,"The host — welcoming newcomers, organizing meals, caring for the space",R,"The connector at the heart of the relational web",P,"The coordinator — organizing events and managing logistics",K
-Q39,sacred,"What draws you most to your sangha?","The sense of peaceful belonging without pressure",B,"The quality of the teachings and the teacher's precision",V,"The warmth, abundance, and richness of the community",R,"The emotional depth and genuine connection with others",P,"The sense of collective purpose and service",K
-Q40,sacred,"When conflict arises in your dharma community, you:","Hope it resolves itself and stay out of it",B,"Want to address it clearly and find the principled solution",V,"Feel it as a threat to community stability and step in to restore harmony",R,"Feel it deeply and want to repair the relational wound",P,"Want to resolve it efficiently and return to productive work",K
-Q41,sacred,"The bodhisattva vow most resonates with you through the lens of:","Vast equal openness to all beings",B,"Clarity — seeing beings' suffering precisely and responding with truth",V,"Generosity — offering resources, richness, and care",R,"Love — deep compassionate connection heart-to-heart",P,"Action — ceaseless tireless service and activity",K
-Q42,sacred,"The paramita (perfection) you find most natural:","Patience and equanimity",B,"Prajna — wisdom and discriminating intelligence",V,"Dana — generosity and offering",R,"Metta — loving-kindness and compassion",P,"Virya — joyful effort",K
-Q43,sacred,"The paramita you find most challenging:","Virya — sustained effort",B,"Letting go of views — openness to being wrong",V,"Giving without receiving recognition",R,"Equanimity — not clinging to what you love",P,"Patience — slowing down",K
-Q44,sacred,"The wisdom quality you most feel awakening in you during practice:","Vast open spaciousness — like the sky (Dharmadhatu Wisdom)",B,"Crystal clarity — seeing things as they truly are (Mirror-Like Wisdom)",V,"A profound sense of equality — everything is equally valuable (Wisdom of Equanimity)",R,"Nuanced heartfelt discernment — knowing what each situation needs (Discriminating Awareness Wisdom)",P,"Effortless spontaneous right action (All-Accomplishing Wisdom)",K
-Q45,sacred,"Which description of a moment of wisdom feels most familiar to you?","A moment when you stopped resisting and felt spacious relief",B,"A moment when anger dissolved into crystalline clarity",V,"A moment when pride fell away and you felt genuinely rich without needing more",R,"A moment when clinging dissolved into unconditional love",P,"A moment when you acted perfectly without deliberation",K
-`
-
-export const QUESTIONS: Question[] = parseCsv(csvText || EMBEDDED_CSV).map(csvRowToQuestion)
-
-export function getQuestionsByMode(mode: 'secular' | 'sacred' | 'full'): Question[] {
-  if (mode === 'secular') return QUESTIONS.filter((q) => q.category === 'secular')
-  if (mode === 'sacred') return QUESTIONS.filter((q) => q.category === 'sacred')
-  return QUESTIONS
+export function getQuestionsForCategories(
+  selectedCategories: string[]
+): Question[] {
+  if (selectedCategories.length === 0) return []
+  const filtered = QUESTIONS.filter((q) =>
+    selectedCategories.includes(q.category)
+  )
+  return shuffle(filtered)
 }

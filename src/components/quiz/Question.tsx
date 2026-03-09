@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import type { Question as QuestionType } from '../../types'
 import { shuffle } from '../../lib/shuffle'
 import { useQuizStore } from '../../stores/quizStore'
+import { getCategoryTitle } from '../../data/categories'
 
 interface QuestionProps {
   question: QuestionType
@@ -23,6 +24,9 @@ export default function Question({ question }: QuestionProps) {
       transition={{ duration: 0.3 }}
       className="space-y-6"
     >
+      <span className="inline-block px-2 py-1 text-xs rounded-full bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-400 mb-2">
+        {getCategoryTitle(question.category)}
+      </span>
       <h2 className="font-serif text-xl md:text-2xl text-stone-800 dark:text-stone-100 leading-relaxed">
         {question.text}
       </h2>

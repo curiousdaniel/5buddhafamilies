@@ -51,7 +51,7 @@ function parseStreamingSections(text: string): InterpretationSection[] {
   return sections
 }
 
-export function useInterpretation(scores: FamilyScores | null) {
+export function useInterpretation(scores: FamilyScores | null, selectedCategories: string[] = []) {
   const [content, setContent] = useState('')
   const [sections, setSections] = useState<InterpretationSection[]>([])
   const [status, setStatus] = useState<InterpretationStatus>('idle')
@@ -77,7 +77,7 @@ export function useInterpretation(scores: FamilyScores | null) {
       const res = await fetch('/api/interpret', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ scores: apiScores }),
+        body: JSON.stringify({ scores: apiScores, selectedCategories }),
       })
 
       if (!res.ok) {
@@ -110,7 +110,7 @@ export function useInterpretation(scores: FamilyScores | null) {
       setError(err instanceof Error ? err : new Error('Interpretation failed'))
       setStatus('error')
     }
-  }, [scores])
+  }, [scores, selectedCategories])
 
   useEffect(() => {
     if (scores) {

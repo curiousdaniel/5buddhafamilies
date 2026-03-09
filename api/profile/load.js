@@ -28,6 +28,8 @@ export default async function handler(req, res) {
     return res.status(404).json({ error: 'Profile not found' })
   }
 
+  const selectedCategories = data.selected_categories ?? (data.quiz_mode === 'sacred' ? ['sacred'] : data.quiz_mode === 'secular' ? ['secular'] : ['secular', 'sacred'])
+
   return res.status(200).json({
     slug: data.slug,
     createdAt: data.created_at,
@@ -36,6 +38,6 @@ export default async function handler(req, res) {
     secondaryFamily: data.secondary_family,
     coreInterpretation: data.core_interpretation,
     completedModules: data.completed_modules || [],
-    quizMode: data.quiz_mode,
+    selectedCategories,
   })
 }

@@ -21,7 +21,8 @@ export function setStoredProfileSlug(slug: string, scores: FamilyScores | null):
 export function useProfileSave(
   scores: FamilyScores | null,
   coreInterpretation: string,
-  interpretationDone: boolean
+  interpretationDone: boolean,
+  selectedCategories: string[] = []
 ) {
   const [profileSlug, setProfileSlug] = useState<string | null>(() =>
     scores ? getStoredProfileSlug(scores) : null
@@ -53,7 +54,7 @@ export function useProfileSave(
           secondaryFamily,
           coreInterpretation,
           completedModules: completedModules.map((m) => ({ id: m.id, content: m.content })),
-          quizMode: 'full',
+          selectedCategories: selectedCategories.length > 0 ? selectedCategories : ['secular', 'sacred'],
         }),
       })
       if (!res.ok) {

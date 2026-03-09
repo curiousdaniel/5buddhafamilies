@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import QuizStart from './components/quiz/QuizStart'
+import CategorySelection from './components/quiz/CategorySelection'
 import QuizFlow from './components/quiz/QuizFlow'
 import Results from './components/results/Results'
 import ProfilePage from './pages/ProfilePage'
@@ -20,6 +21,7 @@ function App() {
       <ThemeToggle />
       <Routes>
         <Route path="/" element={<QuizStart />} />
+        <Route path="/categories" element={<CategorySelection />} />
         <Route path="/quiz" element={<QuizFlow />} />
         <Route path="/results" element={<Results />} />
         <Route path="/profile/:slug" element={<ProfilePage />} />

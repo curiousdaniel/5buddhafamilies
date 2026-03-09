@@ -15,6 +15,7 @@ import { parseInterpretationSections } from '../lib/interpret'
 import { MODULES } from '../data/modules'
 import type { InterpretationSection } from '../hooks/useInterpretation'
 import { useQuizStore } from '../stores/quizStore'
+import { getCategoryTitle } from '../data/categories'
 
 interface SavedProfile {
   slug: string
@@ -24,7 +25,7 @@ interface SavedProfile {
   secondaryFamily: string
   coreInterpretation: string
   completedModules: Array<{ id: string; content: string }>
-  quizMode: string
+  selectedCategories: string[]
 }
 
 export default function ProfilePage() {
@@ -108,6 +109,12 @@ export default function ProfilePage() {
           <div className="mt-8">
             <PieChart percentages={profile.scores.percentages} />
           </div>
+          {profile.selectedCategories.length > 0 && (
+            <p className="mt-6 text-sm text-stone-600 dark:text-stone-500">
+              Based on your responses across:{' '}
+              {profile.selectedCategories.map(getCategoryTitle).join(', ')}
+            </p>
+          )}
         </Card>
 
         <Card className="p-8">
@@ -149,6 +156,7 @@ export default function ProfilePage() {
             })}
             profileSlug={profile.slug}
             isAdmin={isAdmin}
+            selectedCategories={profile.selectedCategories}
           />
         </Card>
 
@@ -156,8 +164,8 @@ export default function ProfilePage() {
           <button
             type="button"
             onClick={() => {
-              useQuizStore.getState().reset()
-              navigate('/')
+              useQuizStore.getState().setSelectedCategories(profile.selectedCategories)
+              navigate('/categories')
             }}
             className="text-gold-dark dark:text-gold hover:text-gold dark:hover:text-gold-light underline"
           >

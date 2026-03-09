@@ -6,16 +6,18 @@ import Button from '../shared/Button'
 interface ShareButtonProps {
   scores: FamilyScores | null
   completedModuleIds?: string[]
+  selectedCategories?: string[]
   shareUrl?: string
 }
 
 export default function ShareButton({
   scores,
   completedModuleIds = [],
+  selectedCategories = [],
   shareUrl: shareUrlProp,
 }: ShareButtonProps) {
   const [copied, setCopied] = useState(false)
-  const fallbackUrl = useShareUrl(scores, completedModuleIds)
+  const fallbackUrl = useShareUrl(scores, completedModuleIds, selectedCategories)
   const shareUrl = shareUrlProp ?? fallbackUrl
 
   const handleCopy = async () => {
