@@ -11,6 +11,9 @@
     },
     "api/cron/send-contemplations.js": {
       "maxDuration": 300
+    },
+    "api/setup/schema.js": {
+      "maxDuration": 30
     }
   },
   "crons": [

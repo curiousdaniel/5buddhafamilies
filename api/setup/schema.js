@@ -62,6 +62,9 @@ export default async function handler(req, res) {
     })
   }
 
+  const prevReject = process.env.NODE_TLS_REJECT_UNAUTHORIZED
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
   const client = new pg.Client({
     connectionString: url,
     ssl: { rejectUnauthorized: false },
@@ -76,5 +79,7 @@ export default async function handler(req, res) {
     console.error('Schema setup error:', err)
     if (client) await client.end().catch(() => {})
     return res.status(500).json({ error: err.message })
+  } finally {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = prevReject ?? '1'
   }
 }
