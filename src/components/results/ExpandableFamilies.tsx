@@ -2,12 +2,13 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { FamilyCode } from '../../types'
 import { getFamilyByCode } from '../../data/families'
-
+import { getFamilyImages, FAMILY_IMAGE_COLORS } from '../../data/familyImages'
 const FAMILY_ORDER: FamilyCode[] = ['buddha', 'vajra', 'ratna', 'padma', 'karma']
 
 interface ExpandableFamiliesProps {
   percentages: Record<FamilyCode, number>
   allExpanded?: boolean
+  showThumbnails?: boolean
 }
 
 const familyContent = (f: ReturnType<typeof getFamilyByCode>) => (
@@ -20,7 +21,7 @@ const familyContent = (f: ReturnType<typeof getFamilyByCode>) => (
   </div>
 )
 
-export default function ExpandableFamilies({ percentages, allExpanded = false }: ExpandableFamiliesProps) {
+export default function ExpandableFamilies({ percentages, allExpanded = false, showThumbnails = true }: ExpandableFamiliesProps) {
   const [expanded, setExpanded] = useState<FamilyCode | null>(null)
 
   return (
@@ -33,12 +34,29 @@ export default function ExpandableFamilies({ percentages, allExpanded = false }:
         const pct = Math.round(percentages[code] ?? 0)
         const isExpanded = allExpanded || expanded === code
 
+        const images = getFamilyImages(code)
+        const borderColor = FAMILY_IMAGE_COLORS[code]
+        const thumbnail = showThumbnails ? (
+          <div
+            className="w-[60px] sm:w-[80px] md:w-[100px] shrink-0 aspect-[3/4] overflow-hidden rounded-lg bg-stone-900/80"
+            style={{ border: `1px solid ${borderColor}50` }}
+          >
+            <img
+              src={images.buddhaImage}
+              alt={`${images.buddhaName}, ${f.name} Family`}
+              loading="lazy"
+              className="w-full h-full object-contain"
+            />
+          </div>
+        ) : null
+
         if (allExpanded) {
           return (
             <div key={code} className="border border-stone-600 rounded-lg overflow-hidden">
-              <div className="flex items-center justify-between p-4 border-b border-stone-700/50">
-                <span className="flex items-center gap-3">
-                  <span className="w-3 h-3 rounded-full" style={{ backgroundColor: f.color }} />
+              <div className="flex items-center gap-3 p-4 border-b border-stone-700/50">
+                {thumbnail}
+                <span className="flex items-center gap-3 flex-1">
+                  <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: f.color }} />
                   <span className="font-medium" style={{ color: f.color }}>{f.name}</span>
                   <span className="text-stone-500 text-sm">{pct}%</span>
                 </span>
@@ -53,16 +71,17 @@ export default function ExpandableFamilies({ percentages, allExpanded = false }:
             <button
               type="button"
               onClick={() => setExpanded(isExpanded ? null : code)}
-              className="w-full flex items-center justify-between p-4 text-left hover:bg-stone-800/50 transition-colors"
+              className="w-full flex items-center justify-between gap-3 p-4 text-left hover:bg-stone-800/50 transition-colors"
               aria-expanded={isExpanded}
               aria-controls={`family-${code}-content`}
             >
-              <span className="flex items-center gap-3">
-                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: f.color }} />
+              <span className="flex items-center gap-3 flex-1 min-w-0">
+                {thumbnail}
+                <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: f.color }} />
                 <span className="font-medium" style={{ color: f.color }}>{f.name}</span>
                 <span className="text-stone-500 text-sm">{pct}%</span>
               </span>
-              <span className="text-stone-500">{isExpanded ? '−' : '+'}</span>
+              <span className="text-stone-500 shrink-0">{isExpanded ? '−' : '+'}</span>
             </button>
             <AnimatePresence>
               {isExpanded && (

@@ -1,15 +1,20 @@
 import { motion } from 'framer-motion'
 import type { FamilyScores } from '../../types'
+import type { InterpretationSection, InterpretationStatus } from '../../hooks/useInterpretation'
 import { getFamilyByCode } from '../../data/families'
-import { useInterpretation } from '../../hooks/useInterpretation'
 import MandalaSpinner from './MandalaSpinner'
 
 interface PersonalInterpretationProps {
   scores: FamilyScores
+  sections: InterpretationSection[]
+  status: InterpretationStatus
 }
 
-export default function PersonalInterpretation({ scores }: PersonalInterpretationProps) {
-  const { sections, status } = useInterpretation(scores)
+export default function PersonalInterpretation({
+  scores,
+  sections,
+  status,
+}: PersonalInterpretationProps) {
   const primaryColor = getFamilyByCode(scores.primary).color
 
   if (status === 'loading') {

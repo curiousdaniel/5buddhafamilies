@@ -1,17 +1,18 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuizStore } from '../../stores/quizStore'
 import { useQuizProgress } from '../../hooks/useQuizProgress'
-import { decodeScoresFromUrl } from '../../hooks/useShareUrl'
+import { useInterpretation } from '../../hooks/useInterpretation'
+import { decodeScoresFromUrl, getModulesFromUrl } from '../../hooks/useShareUrl'
 import Card from '../shared/Card'
 import SummaryCard from './SummaryCard'
-import RadarChart from './RadarChart'
-import MandalaPortrait from './MandalaPortrait'
+import PieChart from './PieChart'
 import PrimaryFamilyProfile from './PrimaryFamilyProfile'
 import CombinationSection from './CombinationSection'
 import ExpandableFamilies from './ExpandableFamilies'
 import PersonalInterpretation from './PersonalInterpretation'
+import ExplorationPanel from './ExplorationPanel'
 import ExportActions from '../export/ExportActions'
 
 export default function Results() {
@@ -19,13 +20,19 @@ export default function Results() {
   const [searchParams] = useSearchParams()
   const { scores: quizScores } = useQuizProgress()
 
-  const scoresFromUrl = useMemo(() => decodeScoresFromUrl(searchParams.toString()), [searchParams])
+  const searchString = searchParams.toString()
+  const scoresFromUrl = useMemo(() => decodeScoresFromUrl(searchString), [searchString])
+  const modulesFromUrl = useMemo(() => getModulesFromUrl(searchString), [searchString])
 
   const scores = scoresFromUrl ?? quizScores
+  const interpretation = useInterpretation(scores)
   const totalRaw = useMemo(
     () => (scores ? Object.values(scores.raw).reduce((a, b) => a + b, 0) : 0),
     [scores]
   )
+  const interpretationReady =
+    interpretation.status === 'done' || interpretation.status === 'error'
+  const [modulesRefreshKey, setModulesRefreshKey] = useState(0)
 
   useEffect(() => {
     if (!scoresFromUrl && totalRaw === 0) {
@@ -55,16 +62,25 @@ export default function Results() {
             secondary={scores.secondary}
             percentages={scores.percentages}
           />
-          <div className="mt-8 flex justify-center">
-            <MandalaPortrait percentages={scores.percentages} size={240} />
-          </div>
           <div className="mt-8">
-            <RadarChart percentages={scores.percentages} />
+            <PieChart percentages={scores.percentages} />
           </div>
         </Card>
 
         <Card className="p-8">
-          <PersonalInterpretation scores={scores} />
+          <PersonalInterpretation
+            scores={scores}
+            sections={interpretation.sections}
+            status={interpretation.status}
+          />
+        </Card>
+
+        <Card className="p-8">
+          <ExplorationPanel
+            scores={scores}
+            onModuleComplete={() => setModulesRefreshKey((k) => k + 1)}
+            modulesToLoad={modulesFromUrl}
+          />
         </Card>
 
         <Card className="p-8">
@@ -80,7 +96,13 @@ export default function Results() {
         </Card>
 
         <Card className="p-8">
-          <ExportActions scores={scores} />
+          <ExportActions
+            scores={scores}
+            interpretationSections={interpretation.sections}
+            interpretationError={interpretation.status === 'error'}
+            interpretationReady={interpretationReady}
+            modulesRefreshKey={modulesRefreshKey}
+          />
         </Card>
 
         <div className="text-center pb-8">

@@ -59,10 +59,24 @@ export function decodeScoresFromUrl(search: string): FamilyScores | null {
   }
 }
 
-export function useShareUrl(scores: FamilyScores | null) {
+export function useShareUrl(
+  scores: FamilyScores | null,
+  completedModuleIds: string[] = []
+) {
   return useMemo(() => {
     if (!scores) return ''
     const encoded = encodeScoresToUrl(scores.percentages)
-    return `${window.location.origin}/results?scores=${encoded}`
-  }, [scores])
+    const base = `${window.location.origin}/results?scores=${encoded}`
+    if (completedModuleIds.length > 0) {
+      return `${base}&modules=${completedModuleIds.join(',')}`
+    }
+    return base
+  }, [scores, completedModuleIds])
+}
+
+export function getModulesFromUrl(search: string): string[] {
+  const params = new URLSearchParams(search)
+  const modulesParam = params.get('modules')
+  if (!modulesParam) return []
+  return modulesParam.split(',').filter(Boolean)
 }

@@ -3,7 +3,11 @@ dotenv.config({ path: ".env.local" })
 dotenv.config()
 import express from "express"
 import cors from "cors"
-import { streamInterpretation } from "./interpret.js"
+import {
+  streamInterpretation,
+  streamModuleInterpretation,
+  streamPairingInterpretation,
+} from "./interpret.js"
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -12,15 +16,22 @@ app.use(cors())
 app.use(express.json())
 
 app.post("/api/interpret", async (req, res) => {
-  const { scores } = req.body
-  if (!scores || typeof scores !== "object") {
-    return res.status(400).json({ error: "Invalid request: scores required" })
-  }
+  const { scores, moduleId, familyA, familyB, context } = req.body
 
   try {
-    const { streamInterpretation } = await import("./interpret.js")
+    let stream
+    if (familyA && familyB && context) {
+      stream = streamPairingInterpretation(familyA, familyB, context)
+    } else if (moduleId && scores && typeof scores === "object") {
+      stream = streamModuleInterpretation(scores, moduleId)
+    } else if (scores && typeof scores === "object") {
+      stream = streamInterpretation(scores)
+    } else {
+      return res.status(400).json({ error: "Invalid request: scores required" })
+    }
+
     let headersSent = false
-    for await (const chunk of streamInterpretation(scores)) {
+    for await (const chunk of stream) {
       if (!headersSent) {
         res.setHeader("Content-Type", "text/plain; charset=utf-8")
         res.setHeader("Transfer-Encoding", "chunked")

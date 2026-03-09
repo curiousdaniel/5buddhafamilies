@@ -1,4 +1,8 @@
-import { streamInterpretation } from '../server/interpret.js'
+import {
+  streamInterpretation,
+  streamModuleInterpretation,
+  streamPairingInterpretation,
+} from '../server/interpret.js'
 
 export const config = {
   api: {
@@ -11,14 +15,26 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { scores } = req.body || {}
-  if (!scores || typeof scores !== 'object') {
-    return res.status(400).json({ error: 'Invalid request: scores required' })
+  const { scores, moduleId, familyA, familyB, context } = req.body || {}
+
+  let stream
+  try {
+    if (familyA && familyB && context) {
+      stream = streamPairingInterpretation(familyA, familyB, context)
+    } else if (moduleId && scores && typeof scores === 'object') {
+      stream = streamModuleInterpretation(scores, moduleId)
+    } else if (scores && typeof scores === 'object') {
+      stream = streamInterpretation(scores)
+    } else {
+      return res.status(400).json({ error: 'Invalid request: scores required' })
+    }
+  } catch (e) {
+    return res.status(400).json({ error: e.message || 'Invalid request' })
   }
 
   try {
     let headersSent = false
-    for await (const chunk of streamInterpretation(scores)) {
+    for await (const chunk of stream) {
       if (!headersSent) {
         res.setHeader('Content-Type', 'text/plain; charset=utf-8')
         res.setHeader('Transfer-Encoding', 'chunked')

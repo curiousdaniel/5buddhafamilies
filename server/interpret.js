@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
+import { MODULE_PROMPTS, PAIRING_PROMPT_TEMPLATE } from './modules.js'
 
 const SYSTEM_PROMPT = `You are a wise, warm, and insightful interpreter of the Five Buddha Families — an ancient Vajrayana Buddhist framework that describes five fundamental energy patterns, each expressing both a neurotic (confused) aspect and a wise (enlightened) aspect. You have deep knowledge of this system as taught in the Tibetan Buddhist tradition and as popularized by teachers like Chögyam Trungpa Rinpoche and Irini Rockwell.
 
@@ -147,6 +148,75 @@ export async function createInterpretationStream(scores) {
 
 export async function* streamInterpretation(scores) {
   const stream = await createInterpretationStream(scores)
+  for await (const event of stream) {
+    if (event.type === "content_block_delta" && event.delta?.text) {
+      yield event.delta.text
+    }
+  }
+}
+
+function buildModulePrompt(moduleExtension) {
+  const beforeTask = SYSTEM_PROMPT.substring(0, SYSTEM_PROMPT.indexOf("## YOUR TASK"))
+  const guidelines = SYSTEM_PROMPT.substring(SYSTEM_PROMPT.indexOf("## IMPORTANT GUIDELINES"))
+  return beforeTask + moduleExtension.trim() + "\n\n---\n\n" + guidelines
+}
+
+export async function* streamModuleInterpretation(scores, moduleId) {
+  const extension = MODULE_PROMPTS[moduleId]
+  if (!extension) throw new Error(`Unknown module: ${moduleId}`)
+
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not set")
+
+  const systemPrompt = buildModulePrompt(extension)
+  const userMessage = buildUserMessage(scores)
+
+  const client = new Anthropic({ apiKey })
+  const stream = await client.messages.create({
+    model: "claude-sonnet-4-20250514",
+    max_tokens: 2000,
+    temperature: 0.7,
+    system: systemPrompt,
+    messages: [{ role: "user", content: userMessage }],
+    stream: true,
+  })
+
+  for await (const event of stream) {
+    if (event.type === "content_block_delta" && event.delta?.text) {
+      yield event.delta.text
+    }
+  }
+}
+
+const FAMILY_NAMES = { buddha: "Buddha", vajra: "Vajra", ratna: "Ratna", padma: "Padma", karma: "Karma" }
+
+export async function* streamPairingInterpretation(familyA, familyB, context) {
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not set")
+
+  const nameA = FAMILY_NAMES[familyA] ?? familyA
+  const nameB = FAMILY_NAMES[familyB] ?? familyB
+  const extension = PAIRING_PROMPT_TEMPLATE
+    .replace(/\[FAMILY_A\]/g, nameA)
+    .replace(/\[FAMILY_B\]/g, nameB)
+    .replace(/\[CONTEXT\]/g, context)
+
+  const beforeTask = SYSTEM_PROMPT.substring(0, SYSTEM_PROMPT.indexOf("## YOUR TASK"))
+  const guidelines = SYSTEM_PROMPT.substring(SYSTEM_PROMPT.indexOf("## IMPORTANT GUIDELINES"))
+  const systemPrompt = beforeTask + extension.trim() + "\n\n---\n\n" + guidelines
+
+  const userMessage = `Explore the dynamic between ${nameA} and ${nameB} energy in the context of ${context}.`
+
+  const client = new Anthropic({ apiKey })
+  const stream = await client.messages.create({
+    model: "claude-sonnet-4-20250514",
+    max_tokens: 2000,
+    temperature: 0.7,
+    system: systemPrompt,
+    messages: [{ role: "user", content: userMessage }],
+    stream: true,
+  })
+
   for await (const event of stream) {
     if (event.type === "content_block_delta" && event.delta?.text) {
       yield event.delta.text

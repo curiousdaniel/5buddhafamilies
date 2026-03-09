@@ -6,13 +6,14 @@ import Button from '../shared/Button'
 
 interface CopyShareTextProps {
   scores: FamilyScores | null
+  completedModuleIds?: string[]
 }
 
 const QUIZ_URL = 'Take the quiz to discover yours!'
 
-export default function CopyShareText({ scores }: CopyShareTextProps) {
+export default function CopyShareText({ scores, completedModuleIds = [] }: CopyShareTextProps) {
   const [copied, setCopied] = useState(false)
-  const shareUrl = useShareUrl(scores)
+  const shareUrl = useShareUrl(scores, completedModuleIds)
 
   const getShareText = () => {
     if (!scores) return ''
