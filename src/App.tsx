@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react'
 import QuizStart from './components/quiz/QuizStart'
 import QuizFlow from './components/quiz/QuizFlow'
 import Results from './components/results/Results'
@@ -24,6 +25,7 @@ function App() {
         <Route path="/results" element={<Results />} />
         <Route path="/profile/:slug" element={<ProfilePage />} />
       </Routes>
+      <Analytics />
     </div>
   )
 }
