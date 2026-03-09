@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useQuizStore } from '../../stores/quizStore'
 import { getQuestionsByMode } from '../../data/questions'
@@ -13,7 +13,9 @@ const MODES: { value: QuizMode; label: string; description: string }[] = [
 
 export default function QuizStart() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { mode, setMode, fillTestAnswers } = useQuizStore()
+  const showQuickTest = searchParams.get('admin') === 'true'
 
   const handleStart = () => {
     if (mode) navigate('/quiz')
@@ -75,13 +77,15 @@ export default function QuizStart() {
             Begin Quiz
           </Button>
 
-          <button
-            type="button"
-            onClick={handleQuickTest}
-            className="w-full py-3 text-sm text-gold-light border border-stone-600 rounded-xl hover:border-gold hover:bg-gold/5 transition-colors"
-          >
-            Quick test (fill sample answers)
-          </button>
+          {showQuickTest && (
+            <button
+              type="button"
+              onClick={handleQuickTest}
+              className="w-full py-3 text-sm text-gold-light border border-stone-600 rounded-xl hover:border-gold hover:bg-gold/5 transition-colors"
+            >
+              Quick test (fill sample answers)
+            </button>
+          )}
         </div>
       </div>
     </motion.div>

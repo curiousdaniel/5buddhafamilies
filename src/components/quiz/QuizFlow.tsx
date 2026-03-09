@@ -55,6 +55,7 @@ export default function QuizFlow() {
         <NavBar
           onBack={handleBack}
           onNext={handleNext}
+          onSkip={handleNext}
           canGoBack={currentIndex > 0}
           canGoNext={true}
           isLast={isLast}
