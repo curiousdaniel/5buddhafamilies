@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import type { FamilyScores } from '../types'
 import Card from '../components/shared/Card'
@@ -30,6 +30,8 @@ interface SavedProfile {
 export default function ProfilePage() {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const isAdmin = searchParams.get('admin') === 'true'
   const [profile, setProfile] = useState<SavedProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -146,6 +148,7 @@ export default function ProfilePage() {
               return { id: m.id, title: mod?.title ?? m.id, content: m.content }
             })}
             profileSlug={profile.slug}
+            isAdmin={isAdmin}
           />
         </Card>
 

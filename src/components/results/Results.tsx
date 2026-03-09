@@ -23,6 +23,7 @@ export default function Results() {
 
   const searchString = searchParams.toString()
   const scoresFromUrl = useMemo(() => decodeScoresFromUrl(searchString), [searchString])
+  const isAdmin = searchParams.get('admin') === 'true'
   const modulesFromUrl = useMemo(() => getModulesFromUrl(searchString), [searchString])
 
   const scores = scoresFromUrl ?? quizScores
@@ -128,6 +129,7 @@ export default function Results() {
             interpretationReady={interpretationReady}
             modulesRefreshKey={modulesRefreshKey}
             profileSlug={profileSlug ?? undefined}
+            isAdmin={isAdmin}
           />
         </Card>
 

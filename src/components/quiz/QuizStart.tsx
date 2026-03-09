@@ -31,7 +31,7 @@ export default function QuizStart() {
       answers[q.id] = [q.options[optionIndex].id]
     })
     fillTestAnswers(answers)
-    navigate('/results')
+    navigate(showQuickTest ? '/results?admin=true' : '/results')
   }
 
   return (

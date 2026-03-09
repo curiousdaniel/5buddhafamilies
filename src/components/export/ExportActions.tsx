@@ -24,6 +24,7 @@ interface ExportActionsProps {
   modulesRefreshKey?: number
   completedModules?: Array<{ id: string; title: string; content: string }>
   profileSlug?: string
+  isAdmin?: boolean
 }
 
 export default function ExportActions({
@@ -34,6 +35,7 @@ export default function ExportActions({
   modulesRefreshKey = 0,
   completedModules: completedModulesProp,
   profileSlug,
+  isAdmin = false,
 }: ExportActionsProps) {
   const exportCardRef = useRef<HTMLDivElement>(null)
   const canExport = scores && interpretationReady
@@ -98,7 +100,7 @@ export default function ExportActions({
 
       {scores && profileSlug && (
         <div className="mt-8 pt-8 border-t border-stone-600/50">
-          <EmailSubscription scores={scores} profileSlug={profileSlug} />
+          <EmailSubscription scores={scores} profileSlug={profileSlug} isAdmin={isAdmin} />
         </div>
       )}
 
