@@ -23,10 +23,10 @@ export default function Question({ question }: QuestionProps) {
       transition={{ duration: 0.3 }}
       className="space-y-6"
     >
-      <h2 className="font-serif text-xl md:text-2xl text-stone-100 leading-relaxed">
+      <h2 className="font-serif text-xl md:text-2xl text-stone-800 dark:text-stone-100 leading-relaxed">
         {question.text}
       </h2>
-      <p className="text-sm text-stone-500">Select all that apply</p>
+      <p className="text-sm text-stone-600 dark:text-stone-500">Select all that apply</p>
       <div className="space-y-3">
         {shuffledOptions.map((opt) => {
           const isChecked = selected.includes(opt.id)
@@ -34,7 +34,7 @@ export default function Question({ question }: QuestionProps) {
             <label
               key={opt.id}
               className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-colors ${
-                isChecked ? 'border-gold bg-gold/10' : 'border-stone-600 hover:border-stone-500'
+                isChecked ? 'border-gold bg-gold/10' : 'border-stone-400 dark:border-stone-600 hover:border-stone-500'
               }`}
             >
               <input
@@ -44,7 +44,7 @@ export default function Question({ question }: QuestionProps) {
                 className="mt-1 rounded border-stone-500 text-gold focus:ring-gold"
                 aria-label={opt.text}
               />
-              <span className="text-stone-200">{opt.text}</span>
+              <span className="text-stone-700 dark:text-stone-200">{opt.text}</span>
             </label>
           )
         })}

@@ -7,8 +7,14 @@ import ExportCard from './ExportCard'
 import ShareButton from './ShareButton'
 import CopyShareText from './CopyShareText'
 import CopyFullReport from './CopyFullReport'
+import EmailSubscription from './EmailSubscription'
 import { exportToPng, exportToPdf } from '../../lib/export'
 import Button from '../shared/Button'
+
+function getAppUrl() {
+  if (typeof window !== 'undefined') return window.location.origin
+  return import.meta.env.VITE_APP_URL || import.meta.env.NEXT_PUBLIC_APP_URL || ''
+}
 
 interface ExportActionsProps {
   scores: FamilyScores | null
@@ -16,6 +22,8 @@ interface ExportActionsProps {
   interpretationError?: boolean
   interpretationReady?: boolean
   modulesRefreshKey?: number
+  completedModules?: Array<{ id: string; title: string; content: string }>
+  profileSlug?: string
 }
 
 export default function ExportActions({
@@ -24,13 +32,17 @@ export default function ExportActions({
   interpretationError,
   interpretationReady = true,
   modulesRefreshKey = 0,
+  completedModules: completedModulesProp,
+  profileSlug,
 }: ExportActionsProps) {
   const exportCardRef = useRef<HTMLDivElement>(null)
   const canExport = scores && interpretationReady
-  const completedModules = useMemo(
+  const completedModulesFromStore = useMemo(
     () => (scores ? getCompletedModules(scores, MODULES) : []),
     [scores, modulesRefreshKey]
   )
+  const completedModules = completedModulesProp ?? completedModulesFromStore
+  const shareUrl = profileSlug ? `${getAppUrl()}/profile/${profileSlug}` : undefined
 
   const handleDownloadPng = async () => {
     if (!exportCardRef.current || !scores) return
@@ -44,7 +56,7 @@ export default function ExportActions({
 
   return (
     <div className="space-y-4">
-      <h3 className="font-serif text-xl text-gold-light">Share & Download</h3>
+      <h3 className="font-serif text-xl text-gold-dark dark:text-gold-light">Share & Download</h3>
       <div className="flex flex-wrap gap-3">
         <Button
           variant="primary"
@@ -63,10 +75,12 @@ export default function ExportActions({
         <ShareButton
           scores={scores}
           completedModuleIds={completedModules.map((m) => m.id)}
+          shareUrl={shareUrl}
         />
         <CopyShareText
           scores={scores}
           completedModuleIds={completedModules.map((m) => m.id)}
+          shareUrl={shareUrl}
         />
         <CopyFullReport
           scores={scores}
@@ -80,6 +94,12 @@ export default function ExportActions({
         <p className="text-sm text-stone-500">
           Preparing your full report for export...
         </p>
+      )}
+
+      {scores && profileSlug && (
+        <div className="mt-8 pt-8 border-t border-stone-600/50">
+          <EmailSubscription scores={scores} profileSlug={profileSlug} />
+        </div>
       )}
 
       {/* Hidden export card for capture - rendered off-screen */}

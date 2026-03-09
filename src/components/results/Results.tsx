@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuizStore } from '../../stores/quizStore'
 import { useQuizProgress } from '../../hooks/useQuizProgress'
 import { useInterpretation } from '../../hooks/useInterpretation'
+import { useProfileSave } from '../../hooks/useProfileSave'
 import { decodeScoresFromUrl, getModulesFromUrl } from '../../hooks/useShareUrl'
 import Card from '../shared/Card'
 import SummaryCard from './SummaryCard'
@@ -34,6 +35,30 @@ export default function Results() {
     interpretation.status === 'done' || interpretation.status === 'error'
   const [modulesRefreshKey, setModulesRefreshKey] = useState(0)
 
+  const { profileSlug, saveProfile, updateModule } = useProfileSave(
+    scores,
+    interpretation.content,
+    interpretationReady
+  )
+  const hasTriggeredSave = useRef(false)
+
+  useEffect(() => {
+    if (
+      interpretationReady &&
+      interpretation.content &&
+      !profileSlug &&
+      !hasTriggeredSave.current
+    ) {
+      hasTriggeredSave.current = true
+      saveProfile()
+    }
+  }, [interpretationReady, interpretation.content, profileSlug, saveProfile])
+
+  const handleModuleComplete = (moduleId: string, content: string) => {
+    setModulesRefreshKey((k) => k + 1)
+    updateModule(moduleId, content)
+  }
+
   useEffect(() => {
     if (!scoresFromUrl && totalRaw === 0) {
       navigate('/')
@@ -42,8 +67,8 @@ export default function Results() {
 
   if (!scores || (!scoresFromUrl && totalRaw === 0)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-dark">
-        <p className="text-stone-500">Loading results...</p>
+      <div className="min-h-screen flex items-center justify-center bg-stone-100 dark:bg-dark">
+        <p className="text-stone-600 dark:text-stone-500">Loading results...</p>
       </div>
     )
   }
@@ -53,7 +78,7 @@ export default function Results() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="min-h-screen px-6 py-12 bg-dark"
+      className="min-h-screen px-6 py-12 bg-stone-100 dark:bg-dark"
     >
       <div className="max-w-3xl mx-auto space-y-12">
         <Card className="p-8">
@@ -78,7 +103,7 @@ export default function Results() {
         <Card className="p-8">
           <ExplorationPanel
             scores={scores}
-            onModuleComplete={() => setModulesRefreshKey((k) => k + 1)}
+            onModuleComplete={handleModuleComplete}
             modulesToLoad={modulesFromUrl}
           />
         </Card>
@@ -102,6 +127,7 @@ export default function Results() {
             interpretationError={interpretation.status === 'error'}
             interpretationReady={interpretationReady}
             modulesRefreshKey={modulesRefreshKey}
+            profileSlug={profileSlug ?? undefined}
           />
         </Card>
 
@@ -112,7 +138,7 @@ export default function Results() {
               useQuizStore.getState().reset()
               navigate('/')
             }}
-            className="text-gold hover:text-gold-light underline"
+            className="text-gold-dark dark:text-gold hover:text-gold dark:hover:text-gold-light underline"
           >
             Retake Quiz
           </button>

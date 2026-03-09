@@ -8,12 +8,25 @@ import {
   streamModuleInterpretation,
   streamPairingInterpretation,
 } from "./interpret.js"
+import profileSave from "../api/profile/save.js"
+import profileLoad from "../api/profile/load.js"
+import profileUpdate from "../api/profile/update.js"
+import subscribe from "../api/subscribe.js"
+import unsubscribe from "../api/unsubscribe.js"
+import sendContemplations from "../api/cron/send-contemplations.js"
 
 const app = express()
 const PORT = process.env.PORT || 3001
 
 app.use(cors())
 app.use(express.json())
+
+app.post("/api/profile/save", (req, res) => profileSave(req, res))
+app.get("/api/profile/load", (req, res) => profileLoad(req, res))
+app.patch("/api/profile/update", (req, res) => profileUpdate(req, res))
+app.post("/api/subscribe", (req, res) => subscribe(req, res))
+app.get("/api/unsubscribe", (req, res) => unsubscribe(req, res))
+app.all("/api/cron/send-contemplations", (req, res) => sendContemplations(req, res))
 
 app.post("/api/interpret", async (req, res) => {
   const { scores, moduleId, familyA, familyB, context } = req.body

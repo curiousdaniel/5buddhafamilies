@@ -8,6 +8,15 @@
   "functions": {
     "api/interpret.js": {
       "maxDuration": 60
+    },
+    "api/cron/send-contemplations.js": {
+      "maxDuration": 300
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/send-contemplations",
+      "schedule": "0 7 * * *"
+    }
+  ]
 }

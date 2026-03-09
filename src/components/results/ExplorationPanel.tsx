@@ -5,18 +5,26 @@ import PairingsSelector from './PairingsSelector'
 
 interface ExplorationPanelProps {
   scores: FamilyScores
-  onModuleComplete?: () => void
+  onModuleComplete?: (moduleId: string, content: string) => void
   modulesToLoad?: string[]
+  preLoadedModules?: Array<{ id: string; content: string }>
 }
 
-export default function ExplorationPanel({ scores, onModuleComplete, modulesToLoad = [] }: ExplorationPanelProps) {
+export default function ExplorationPanel({
+  scores,
+  onModuleComplete,
+  modulesToLoad = [],
+  preLoadedModules = [],
+}: ExplorationPanelProps) {
+  const preLoadedMap = Object.fromEntries(preLoadedModules.map((m) => [m.id, m.content]))
+
   return (
     <div className="space-y-10">
       <div>
-        <h3 className="font-serif text-2xl text-gold-light mb-2">
+        <h3 className="font-serif text-2xl text-gold-dark dark:text-gold-light mb-2">
           Explore Your Composition Further
         </h3>
-        <p className="text-stone-500">
+        <p className="text-stone-600 dark:text-stone-500">
           Select any area below to receive a personalized reading based on your
           family composition.
         </p>
@@ -30,6 +38,7 @@ export default function ExplorationPanel({ scores, onModuleComplete, modulesToLo
             scores={scores}
             onComplete={onModuleComplete}
             autoFetch={modulesToLoad.includes(module.id)}
+            preLoadedContent={preLoadedMap[module.id]}
           />
         ))}
       </div>

@@ -39,13 +39,13 @@ export default function QuizStart() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="min-h-screen flex flex-col items-center justify-center px-6 py-12 bg-dark"
+      className="min-h-screen flex flex-col items-center justify-center px-6 py-12 bg-stone-100 dark:bg-dark"
     >
       <div className="max-w-lg w-full text-center">
-        <h1 className="font-serif text-4xl md:text-5xl font-semibold text-gold-light mb-2">
+        <h1 className="font-serif text-4xl md:text-5xl font-semibold text-gold-dark dark:text-gold-light mb-2">
           Five Buddha Families
         </h1>
-        <p className="text-stone-400 text-lg mb-12">
+        <p className="text-stone-600 dark:text-stone-400 text-lg mb-12">
           Discover your personal composition of the Five Buddha Families — an ancient Vajrayana Buddhist framework describing five fundamental energy patterns.
         </p>
 
@@ -57,12 +57,12 @@ export default function QuizStart() {
               onClick={() => setMode(m.value)}
               className={`w-full text-left p-4 rounded-xl border transition-colors ${
                 mode === m.value
-                  ? 'border-gold bg-gold/10 text-gold-light'
-                  : 'border-stone-600 hover:border-stone-500 text-stone-300'
+                  ? 'border-gold bg-gold/10 text-gold-dark dark:text-gold-light'
+                  : 'border-stone-400 dark:border-stone-600 hover:border-stone-500 text-stone-700 dark:text-stone-300'
               }`}
             >
               <span className="font-medium block">{m.label}</span>
-              <span className="text-sm text-stone-500">{m.description}</span>
+              <span className="text-sm text-stone-600 dark:text-stone-500">{m.description}</span>
             </button>
           ))}
         </div>
@@ -81,7 +81,7 @@ export default function QuizStart() {
             <button
               type="button"
               onClick={handleQuickTest}
-              className="w-full py-3 text-sm text-gold-light border border-stone-600 rounded-xl hover:border-gold hover:bg-gold/5 transition-colors"
+              className="w-full py-3 text-sm text-gold-dark dark:text-gold-light border border-stone-400 dark:border-stone-600 rounded-xl hover:border-gold hover:bg-gold/5 transition-colors"
             >
               Quick test (fill sample answers)
             </button>

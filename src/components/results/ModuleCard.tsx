@@ -1,32 +1,49 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import type { FamilyScores } from '../../types'
 import type { Module } from '../../data/modules'
 import { getFamilyByCode } from '../../data/families'
 import { getFamilyImages } from '../../data/familyImages'
 import { useModuleInterpretation } from '../../hooks/useModuleInterpretation'
+import { parseInterpretationSections } from '../../lib/interpret'
 import MandalaSpinner from './MandalaSpinner'
 import SacredImage from '../shared/SacredImage'
 
 interface ModuleCardProps {
   module: Module
   scores: FamilyScores
-  onComplete?: () => void
+  onComplete?: (moduleId: string, content: string) => void
   autoFetch?: boolean
+  preLoadedContent?: string
 }
 
-export default function ModuleCard({ module, scores, onComplete, autoFetch }: ModuleCardProps) {
-  const { sections, status, fetchAndStream } = useModuleInterpretation(
-    module.id,
-    scores
-  )
+function parseSections(content: string) {
+  return parseInterpretationSections(content).map((s) => ({ ...s, complete: true }))
+}
+
+export default function ModuleCard({
+  module,
+  scores,
+  onComplete,
+  autoFetch,
+  preLoadedContent,
+}: ModuleCardProps) {
+  const hook = useModuleInterpretation(module.id, preLoadedContent ? null : scores)
+  const sections = preLoadedContent ? parseSections(preLoadedContent) : hook.sections
+  const status = preLoadedContent ? 'done' : hook.status
+  const fetchAndStream = hook.fetchAndStream
   const primaryColor = getFamilyByCode(scores.primary).color
   const isComplete = status === 'done'
   const isLoading = status === 'loading' || status === 'streaming'
+  const content = preLoadedContent ?? hook.content
+  const hasReportedComplete = useRef(false)
 
   useEffect(() => {
-    if (isComplete && onComplete) onComplete()
-  }, [isComplete, onComplete])
+    if (isComplete && onComplete && content && !hasReportedComplete.current) {
+      hasReportedComplete.current = true
+      onComplete(module.id, content)
+    }
+  }, [isComplete, onComplete, module.id, content])
 
   useEffect(() => {
     if (autoFetch && status === 'idle' && scores) {

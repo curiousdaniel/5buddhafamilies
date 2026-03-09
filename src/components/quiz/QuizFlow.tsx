@@ -41,11 +41,11 @@ export default function QuizFlow() {
   if (!currentQuestion) return null
 
   return (
-    <div className="min-h-screen px-6 py-8 md:py-12 bg-dark">
+    <div className="min-h-screen px-6 py-8 md:py-12 bg-stone-100 dark:bg-dark">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
           <ProgressBar current={currentIndex + 1} total={total} />
-          <p className="text-sm text-stone-500 mt-2">
+          <p className="text-sm text-stone-600 dark:text-stone-500 mt-2">
             Question {currentIndex + 1} of {total}
           </p>
         </div>

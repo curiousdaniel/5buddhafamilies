@@ -27,10 +27,10 @@ export default function SummaryCard({ primary, secondary, percentages, showBuddh
         className="mb-6 mx-auto"
       />
       )}
-      <h2 className="font-serif text-2xl md:text-3xl text-gold-light mb-2">
+      <h2 className="font-serif text-2xl md:text-3xl text-gold-dark dark:text-gold-light mb-2">
         Your primary family: {primaryFamily.name}
       </h2>
-      <p className="text-stone-400 mb-4">
+      <p className="text-stone-600 dark:text-stone-400 mb-4">
         with strong {secondaryFamily.name} influence
       </p>
       <div className="flex justify-center gap-4 text-sm">

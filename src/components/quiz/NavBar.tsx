@@ -42,7 +42,7 @@ export default function NavBar({
           <button
             type="button"
             onClick={onSkip}
-            className="text-sm text-stone-500 hover:text-stone-400 underline"
+            className="text-sm text-stone-600 dark:text-stone-500 hover:text-stone-500 dark:hover:text-stone-400 underline"
           >
             {isLast ? 'Skip to results' : 'Skip this question'}
           </button>
