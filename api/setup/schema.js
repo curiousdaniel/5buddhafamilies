@@ -62,7 +62,10 @@ export default async function handler(req, res) {
     })
   }
 
-  const client = new pg.Client({ connectionString: url })
+  const client = new pg.Client({
+    connectionString: url,
+    ssl: { rejectUnauthorized: false },
+  })
 
   try {
     await client.connect()

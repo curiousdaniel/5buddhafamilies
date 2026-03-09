@@ -35,7 +35,10 @@ const schema = readFileSync(schemaPath, 'utf8')
   .trim()
 
 async function main() {
-  const client = new pg.Client({ connectionString: url })
+  const client = new pg.Client({
+    connectionString: url,
+    ssl: { rejectUnauthorized: false },
+  })
   try {
     await client.connect()
     console.log('Connected to Supabase')
