@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import type { FamilyScores } from '../../types'
 import { getFamilyByCode } from '../../data/families'
 import { exportToPng, exportToPdf, exportToBlob } from '../../lib/export'
@@ -57,6 +58,8 @@ export default function ResultHeroActions({
   const [shareOpen, setShareOpen] = useState(false)
   const [instagramToast, setInstagramToast] = useState(false)
   const shareDropdownRef = useRef<HTMLDivElement>(null)
+  const shareButtonRef = useRef<HTMLDivElement>(null)
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 })
   const fallbackUrl = useShareUrl(scores, completedModuleIds, selectedCategories)
   const shareUrl = shareUrlProp ?? (profileSlug ? `${getAppUrl()}/profile/${profileSlug}` : fallbackUrl)
 
@@ -66,8 +69,27 @@ export default function ResultHeroActions({
   const url = shareUrl || `${getAppUrl()}/`
 
   useEffect(() => {
+    if (shareOpen && shareButtonRef.current) {
+      const rect = shareButtonRef.current.getBoundingClientRect()
+      const dropdownWidth = 200
+      const padding = 8
+      const left = Math.max(
+        padding,
+        Math.min(rect.right - dropdownWidth, typeof window !== 'undefined' ? window.innerWidth - dropdownWidth - padding : rect.right - dropdownWidth)
+      )
+      setDropdownPosition({ top: rect.bottom + 4, left })
+    }
+  }, [shareOpen])
+
+  useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (shareDropdownRef.current && !shareDropdownRef.current.contains(e.target as Node)) {
+      const target = e.target as Node
+      if (
+        shareDropdownRef.current &&
+        !shareDropdownRef.current.contains(target) &&
+        shareButtonRef.current &&
+        !shareButtonRef.current.contains(target)
+      ) {
         setShareOpen(false)
       }
     }
@@ -167,7 +189,7 @@ export default function ResultHeroActions({
           <MailIcon />
         </IconButton>
       )}
-      <div className="relative" ref={shareDropdownRef}>
+      <div className="relative" ref={shareButtonRef}>
         <IconButton
           onClick={() => setShareOpen((o) => !o)}
           title="Share"
@@ -175,55 +197,62 @@ export default function ResultHeroActions({
         >
           <ShareIcon />
         </IconButton>
-        {shareOpen && (
-          <div className="absolute right-0 top-full mt-1 z-10 min-w-[200px] py-2 rounded-lg border border-stone-500 dark:border-stone-600 bg-stone-100 dark:bg-dark shadow-lg">
-            <p className="px-3 py-1 text-xs text-stone-500 dark:text-stone-400 font-medium">
-              Share via...
-            </p>
-            {typeof navigator !== 'undefined' && 'share' in navigator && (
+        {shareOpen &&
+          typeof document !== 'undefined' &&
+          createPortal(
+            <div
+              ref={shareDropdownRef}
+              className="fixed z-[9999] min-w-[200px] py-2 rounded-lg border border-stone-500 dark:border-stone-600 bg-stone-100 dark:bg-dark shadow-xl"
+              style={{ top: dropdownPosition.top, left: dropdownPosition.left }}
+            >
+              <p className="px-3 py-1 text-xs text-stone-500 dark:text-stone-400 font-medium">
+                Share via...
+              </p>
+              {typeof navigator !== 'undefined' && 'share' in navigator && (
+                <button
+                  type="button"
+                  onClick={handleNativeShare}
+                  className="w-full px-3 py-2 text-left text-sm text-stone-700 dark:text-stone-300 hover:bg-gold/10 flex items-center gap-2"
+                >
+                  <ShareIcon />
+                  More (native)
+                </button>
+              )}
               <button
                 type="button"
-                onClick={handleNativeShare}
+                onClick={handleShareFacebook}
                 className="w-full px-3 py-2 text-left text-sm text-stone-700 dark:text-stone-300 hover:bg-gold/10 flex items-center gap-2"
               >
-                <ShareIcon />
-                More (native)
+                <FacebookIcon />
+                Facebook
               </button>
-            )}
-            <button
-              type="button"
-              onClick={handleShareFacebook}
-              className="w-full px-3 py-2 text-left text-sm text-stone-700 dark:text-stone-300 hover:bg-gold/10 flex items-center gap-2"
-            >
-              <FacebookIcon />
-              Facebook
-            </button>
-            <button
-              type="button"
-              onClick={handleShareTwitter}
-              className="w-full px-3 py-2 text-left text-sm text-stone-700 dark:text-stone-300 hover:bg-gold/10 flex items-center gap-2"
-            >
-              <TwitterIcon />
-              Twitter/X
-            </button>
-            <button
-              type="button"
-              onClick={handleShareLinkedIn}
-              className="w-full px-3 py-2 text-left text-sm text-stone-700 dark:text-stone-300 hover:bg-gold/10 flex items-center gap-2"
-            >
-              <LinkedInIcon />
-              LinkedIn
-            </button>
-            <button
-              type="button"
-              onClick={handleDownloadForInstagram}
-              className="w-full px-3 py-2 text-left text-sm text-stone-700 dark:text-stone-300 hover:bg-gold/10 flex items-center gap-2"
-            >
-              <InstagramIcon />
-              Download for Instagram
-            </button>
-          </div>
-        )}
+              <button
+                type="button"
+                onClick={handleShareTwitter}
+                className="w-full px-3 py-2 text-left text-sm text-stone-700 dark:text-stone-300 hover:bg-gold/10 flex items-center gap-2"
+              >
+                <TwitterIcon />
+                Twitter/X
+              </button>
+              <button
+                type="button"
+                onClick={handleShareLinkedIn}
+                className="w-full px-3 py-2 text-left text-sm text-stone-700 dark:text-stone-300 hover:bg-gold/10 flex items-center gap-2"
+              >
+                <LinkedInIcon />
+                LinkedIn
+              </button>
+              <button
+                type="button"
+                onClick={handleDownloadForInstagram}
+                className="w-full px-3 py-2 text-left text-sm text-stone-700 dark:text-stone-300 hover:bg-gold/10 flex items-center gap-2"
+              >
+                <InstagramIcon />
+                Download for Instagram
+              </button>
+            </div>,
+            document.body
+          )}
       </div>
       {instagramToast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg bg-stone-800 dark:bg-stone-700 text-stone-100 text-sm shadow-lg z-50">
