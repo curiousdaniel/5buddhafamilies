@@ -38,6 +38,8 @@ const IconButton = ({
 interface ResultHeroActionsProps {
   scores: FamilyScores
   heroRef: React.RefObject<HTMLElement | null>
+  exportRef?: React.RefObject<HTMLElement | null>
+  interpretationReady?: boolean
   profileSlug?: string
   shareUrl?: string
   completedModuleIds?: string[]
@@ -48,6 +50,8 @@ interface ResultHeroActionsProps {
 export default function ResultHeroActions({
   scores,
   heroRef,
+  exportRef,
+  interpretationReady = true,
   profileSlug,
   shareUrl: shareUrlProp,
   completedModuleIds = [],
@@ -100,8 +104,9 @@ export default function ResultHeroActions({
   }, [shareOpen])
 
   const handleDownloadPdf = async () => {
-    if (!heroRef.current) return
-    await exportToPdf(heroRef.current, 'my-buddha-family.pdf')
+    const target = exportRef?.current ?? heroRef.current
+    if (!target) return
+    await exportToPdf(target, 'my-buddha-family.pdf')
   }
 
   const handleCopyLink = async () => {
@@ -124,9 +129,10 @@ export default function ResultHeroActions({
 
   const handleNativeShare = async () => {
     setShareOpen(false)
-    if (!navigator.share || !heroRef.current) return
+    const target = exportRef?.current ?? heroRef.current
+    if (!navigator.share || !target) return
     try {
-      const blob = await exportToBlob(heroRef.current)
+      const blob = await exportToBlob(target)
       const file = new File([blob], 'my-buddha-family.png', { type: 'image/png' })
       await navigator.share({
         title: 'My Five Buddha Families',
@@ -162,15 +168,20 @@ export default function ResultHeroActions({
 
   const handleDownloadForInstagram = async () => {
     setShareOpen(false)
-    if (!heroRef.current) return
-    await exportToPng(heroRef.current, 'my-buddha-family.png')
+    const target = exportRef?.current ?? heroRef.current
+    if (!target) return
+    await exportToPng(target, 'my-buddha-family.png')
     setInstagramToast(true)
     setTimeout(() => setInstagramToast(false), 4000)
   }
 
   return (
     <div className="flex flex-wrap items-center justify-center gap-1 mt-6">
-      <IconButton onClick={handleDownloadPdf} title="Download as PDF">
+      <IconButton
+        onClick={handleDownloadPdf}
+        title="Download as PDF"
+        disabled={!interpretationReady}
+      >
         <PdfIcon />
       </IconButton>
       <IconButton onClick={handleCopyLink} title={copied ? 'Copied!' : 'Copy link'}>

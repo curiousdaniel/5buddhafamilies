@@ -40,6 +40,7 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null)
   const [saveEmailOpen, setSaveEmailOpen] = useState(false)
   const heroRef = useRef<HTMLDivElement>(null)
+  const exportCardRef = useRef<HTMLDivElement>(null)
 
   const handleModuleComplete = useCallback(
     async (moduleId: string, content: string) => {
@@ -153,6 +154,7 @@ export default function ProfilePage() {
             <ResultHeroActions
               scores={profile.scores}
               heroRef={heroRef}
+              exportRef={exportCardRef}
               profileSlug={profile.slug}
               completedModuleIds={profile.completedModules.map((m) => m.id)}
               selectedCategories={profile.selectedCategories}
@@ -208,6 +210,7 @@ export default function ProfilePage() {
             profileSlug={profile.slug}
             isAdmin={isAdmin}
             selectedCategories={profile.selectedCategories}
+            exportCardRef={exportCardRef}
           />
         </Card>
 

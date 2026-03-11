@@ -74,6 +74,7 @@ export default function Results() {
   }
 
   const heroRef = useRef<HTMLDivElement>(null)
+  const exportCardRef = useRef<HTMLDivElement>(null)
   const [saveEmailOpen, setSaveEmailOpen] = useState(false)
 
   useEffect(() => {
@@ -117,6 +118,8 @@ export default function Results() {
             <ResultHeroActions
               scores={scores}
               heroRef={heroRef}
+              exportRef={exportCardRef}
+              interpretationReady={interpretationReady}
               profileSlug={profileSlug ?? undefined}
               completedModuleIds={[]}
               selectedCategories={categoriesForInterpretation}
@@ -171,6 +174,7 @@ export default function Results() {
             profileSlug={profileSlug ?? undefined}
             isAdmin={isAdmin}
             selectedCategories={categoriesForInterpretation}
+            exportCardRef={exportCardRef}
           />
         </Card>
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 
 const BMC_SCRIPT_URL = 'https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js'
 const BMC_DATA = {
@@ -21,48 +21,16 @@ function loadBMCWidget() {
   Object.entries(BMC_DATA).forEach(([key, value]) =>
     script.setAttribute(`data-${key}`, String(value))
   )
+  script.onload = () => {
+    const evt = new Event('DOMContentLoaded', { bubbles: true })
+    window.dispatchEvent(evt)
+  }
   document.body.appendChild(script)
 }
 
 export default function BuyMeACoffeeWidget() {
-  const loaded = useRef(false)
-  const timeoutId = useRef<number | null>(null)
-
   useEffect(() => {
-    if (loaded.current) return
-
-    const tryLoad = () => {
-      if (loaded.current) return
-      loaded.current = true
-      if (timeoutId.current) {
-        clearTimeout(timeoutId.current)
-        timeoutId.current = null
-      }
-      loadBMCWidget()
-    }
-
-    // Check if already scrolled 30% (e.g. refresh while scrolled)
-    const scrollTop = window.scrollY
-    const docHeight = document.documentElement.scrollHeight - window.innerHeight
-    if (docHeight > 0 && scrollTop / docHeight >= 0.3) {
-      tryLoad()
-      return
-    }
-
-    timeoutId.current = window.setTimeout(tryLoad, 30_000)
-
-    const handleScroll = () => {
-      const scrollTop = window.scrollY
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight
-      if (docHeight > 0 && scrollTop / docHeight >= 0.3) tryLoad()
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-
-    return () => {
-      if (timeoutId.current) clearTimeout(timeoutId.current)
-      window.removeEventListener('scroll', handleScroll)
-    }
+    loadBMCWidget()
   }, [])
 
   return null

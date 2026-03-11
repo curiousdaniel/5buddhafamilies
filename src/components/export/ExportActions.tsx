@@ -25,6 +25,7 @@ interface ExportActionsProps {
   profileSlug?: string
   isAdmin?: boolean
   selectedCategories?: string[]
+  exportCardRef?: React.RefObject<HTMLDivElement>
 }
 
 export default function ExportActions({
@@ -37,8 +38,10 @@ export default function ExportActions({
   profileSlug,
   isAdmin = false,
   selectedCategories = [],
+  exportCardRef: exportCardRefProp,
 }: ExportActionsProps) {
-  const exportCardRef = useRef<HTMLDivElement>(null)
+  const internalRef = useRef<HTMLDivElement>(null)
+  const exportCardRef = exportCardRefProp ?? internalRef
   const canExport = scores && interpretationReady
   const completedModulesFromStore = useMemo(
     () => (scores ? getCompletedModules(scores, MODULES) : []),
