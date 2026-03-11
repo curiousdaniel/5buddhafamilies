@@ -22,18 +22,10 @@ export default function QuizStart() {
 
         <Button
           onClick={() => navigate('/quiz-setup')}
-          className="w-full mb-4"
+          className="w-full mb-6"
           aria-label="Begin the quiz"
         >
           Begin the Quiz
-        </Button>
-        <Button
-          variant="secondary"
-          onClick={() => navigate('/categories')}
-          className="w-full"
-          aria-label="Go deep with 125 questions"
-        >
-          Want the most thorough assessment? Go deep with 125 questions across 10 areas of life.
         </Button>
       </div>
     </motion.div>

@@ -18,6 +18,7 @@ import ExplorationPanel from './ExplorationPanel'
 import ExportActions from '../export/ExportActions'
 import ResultHeroActions from './ResultHeroActions'
 import SaveEmailModal from '../export/SaveEmailModal'
+import KoFiWidget from '../shared/KoFiWidget'
 
 export default function Results() {
   const navigate = useNavigate()
@@ -188,6 +189,7 @@ export default function Results() {
           </button>
         </div>
       </div>
+      <KoFiWidget />
     </motion.div>
   )
 }
