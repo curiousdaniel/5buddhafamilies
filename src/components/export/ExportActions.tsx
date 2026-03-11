@@ -5,8 +5,7 @@ import { getCompletedModules } from '../../lib/interpret'
 import { MODULES } from '../../data/modules'
 import ExportCard from './ExportCard'
 import ShareButton from './ShareButton'
-import CopyShareText from './CopyShareText'
-import CopyFullReport from './CopyFullReport'
+import ShareDropdown from './ShareDropdown'
 import EmailSubscription from './EmailSubscription'
 import { exportToPng, exportToPdf } from '../../lib/export'
 import Button from '../shared/Button'
@@ -82,18 +81,10 @@ export default function ExportActions({
           selectedCategories={selectedCategories}
           shareUrl={shareUrl}
         />
-        <CopyShareText
+        <ShareDropdown
           scores={scores}
-          completedModuleIds={completedModules.map((m) => m.id)}
-          selectedCategories={selectedCategories}
           shareUrl={shareUrl}
-        />
-        <CopyFullReport
-          scores={scores}
-          interpretationSections={interpretationSections}
-          interpretationError={interpretationError}
-          interpretationReady={interpretationReady}
-          completedModules={completedModules}
+          exportRef={exportCardRef}
         />
       </div>
       {scores && !interpretationReady && (
