@@ -95,7 +95,7 @@ export default function Results() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="min-h-screen px-6 py-12 bg-stone-100 dark:bg-dark"
+      className="px-6 pt-12 pb-6 bg-stone-100 dark:bg-dark"
     >
       <div className="max-w-3xl mx-auto space-y-12">
         <Card className="p-8">
@@ -174,7 +174,7 @@ export default function Results() {
           />
         </Card>
 
-        <div className="text-center pb-8">
+        <div className="text-center">
           <button
             type="button"
             onClick={() => navigate('/categories')}
