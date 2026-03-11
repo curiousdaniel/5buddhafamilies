@@ -7,7 +7,7 @@ import ExportCard from './ExportCard'
 import ShareButton from './ShareButton'
 import ShareDropdown from './ShareDropdown'
 import EmailSubscription from './EmailSubscription'
-import { exportToPng, exportToPdf } from '../../lib/export'
+import { exportToPdf } from '../../lib/export'
 import Button from '../shared/Button'
 
 function getAppUrl() {
@@ -47,11 +47,6 @@ export default function ExportActions({
   const completedModules = completedModulesProp ?? completedModulesFromStore
   const shareUrl = profileSlug ? `${getAppUrl()}/profile/${profileSlug}` : undefined
 
-  const handleDownloadPng = async () => {
-    if (!exportCardRef.current || !scores) return
-    await exportToPng(exportCardRef.current)
-  }
-
   const handleDownloadPdf = async () => {
     if (!exportCardRef.current || !scores) return
     await exportToPdf(exportCardRef.current)
@@ -61,13 +56,6 @@ export default function ExportActions({
     <div className="space-y-4">
       <h3 className="font-serif text-xl text-gold-dark dark:text-gold-light">Share & Download</h3>
       <div className="flex flex-wrap gap-3">
-        <Button
-          variant="primary"
-          onClick={handleDownloadPng}
-          disabled={!canExport}
-        >
-          Download PNG
-        </Button>
         <Button
           variant="secondary"
           onClick={handleDownloadPdf}

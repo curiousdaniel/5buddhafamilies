@@ -95,9 +95,9 @@ export default function Results() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="px-6 pt-12 pb-6 bg-stone-100 dark:bg-dark"
+      className="px-6 pt-12 pb-4 bg-stone-100 dark:bg-dark"
     >
-      <div className="max-w-3xl mx-auto space-y-12">
+      <div className="max-w-3xl mx-auto space-y-12 pb-2">
         <Card className="p-8">
           <div ref={heroRef}>
             <SummaryCard

@@ -19,7 +19,7 @@ function App() {
   }, [theme])
 
   return (
-    <div className="min-h-screen bg-stone-100 dark:bg-dark text-stone-800 dark:text-stone-200">
+    <div className="bg-stone-100 dark:bg-dark text-stone-800 dark:text-stone-200">
       <ThemeToggle />
       <BuyMeACoffeeWidget />
       <Routes>

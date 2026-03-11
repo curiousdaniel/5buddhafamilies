@@ -99,11 +99,6 @@ export default function ResultHeroActions({
     }
   }, [shareOpen])
 
-  const handleDownloadPng = async () => {
-    if (!heroRef.current) return
-    await exportToPng(heroRef.current, 'my-buddha-family.png')
-  }
-
   const handleDownloadPdf = async () => {
     if (!heroRef.current) return
     await exportToPdf(heroRef.current, 'my-buddha-family.pdf')
@@ -175,9 +170,6 @@ export default function ResultHeroActions({
 
   return (
     <div className="flex flex-wrap items-center justify-center gap-1 mt-6">
-      <IconButton onClick={handleDownloadPng} title="Download as PNG">
-        <DownloadIcon />
-      </IconButton>
       <IconButton onClick={handleDownloadPdf} title="Download as PDF">
         <PdfIcon />
       </IconButton>
@@ -260,16 +252,6 @@ export default function ResultHeroActions({
         </div>
       )}
     </div>
-  )
-}
-
-function DownloadIcon() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-      <polyline points="7 10 12 15 17 10" />
-      <line x1="12" y1="15" x2="12" y2="3" />
-    </svg>
   )
 }
 
