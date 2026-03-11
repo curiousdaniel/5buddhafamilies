@@ -103,15 +103,16 @@ export default function QuizModeSimple() {
           </button>
         )}
 
-        <p className="mt-8 text-center">
-          <button
-            type="button"
-            onClick={() => navigate('/categories')}
-            className="text-gold-dark dark:text-gold-light hover:underline text-sm"
-          >
-            Explore all categories — choose from 10 areas of life
-          </button>
-        </p>
+        <button
+          type="button"
+          onClick={() => navigate('/categories')}
+          className="w-full mt-8 text-left p-4 rounded-xl border border-gold/50 dark:border-gold/30 hover:border-gold hover:bg-gold/10 transition-colors text-gold-dark dark:text-gold-light"
+        >
+          <span className="font-medium block">Want the best assessment?</span>
+          <span className="text-sm mt-1 block opacity-90">
+            Go really deep — 125 questions across 10 areas of life. Choose your own categories for the most thorough exploration.
+          </span>
+        </button>
       </div>
     </motion.div>
   )
