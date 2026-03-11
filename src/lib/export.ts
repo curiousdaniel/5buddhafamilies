@@ -1,6 +1,17 @@
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
 
+export async function exportToBlob(element: HTMLElement): Promise<Blob> {
+  const canvas = await html2canvas(element, {
+    backgroundColor: '#1A1612',
+    scale: 2,
+    useCORS: true,
+  })
+  return new Promise((resolve) => {
+    canvas.toBlob((b) => resolve(b!), 'image/png')
+  })
+}
+
 export async function exportToPng(element: HTMLElement, filename = 'buddha-family-results.png') {
   const canvas = await html2canvas(element, {
     backgroundColor: '#1A1612',

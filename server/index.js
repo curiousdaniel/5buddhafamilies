@@ -16,6 +16,7 @@ import unsubscribe from "../api/unsubscribe.js"
 import sendContemplations from "../api/cron/send-contemplations.js"
 import setupSchema from "../api/setup/schema.js"
 import sendTestEmail from "../api/send-test-email.js"
+import sendLinkEmail from "../api/send-link-email.js"
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -31,6 +32,7 @@ app.get("/api/unsubscribe", (req, res) => unsubscribe(req, res))
 app.all("/api/cron/send-contemplations", (req, res) => sendContemplations(req, res))
 app.get("/api/setup/schema", (req, res) => setupSchema(req, res))
 app.post("/api/send-test-email", (req, res) => sendTestEmail(req, res))
+app.post("/api/send-link-email", (req, res) => sendLinkEmail(req, res))
 
 app.post("/api/interpret", async (req, res) => {
   const { scores, moduleId, familyA, familyB, context, selectedCategories } = req.body

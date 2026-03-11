@@ -16,6 +16,8 @@ import ExpandableFamilies from './ExpandableFamilies'
 import PersonalInterpretation from './PersonalInterpretation'
 import ExplorationPanel from './ExplorationPanel'
 import ExportActions from '../export/ExportActions'
+import ResultHeroActions from './ResultHeroActions'
+import SaveEmailModal from '../export/SaveEmailModal'
 
 export default function Results() {
   const navigate = useNavigate()
@@ -71,6 +73,9 @@ export default function Results() {
     updateModule(moduleId, content)
   }
 
+  const heroRef = useRef<HTMLDivElement>(null)
+  const [saveEmailOpen, setSaveEmailOpen] = useState(false)
+
   useEffect(() => {
     if (!scoresFromUrl && totalRaw === 0) {
       navigate('/')
@@ -94,19 +99,37 @@ export default function Results() {
     >
       <div className="max-w-3xl mx-auto space-y-12">
         <Card className="p-8">
-          <SummaryCard
-            primary={scores.primary}
-            secondary={scores.secondary}
-            percentages={scores.percentages}
-          />
-          <div className="mt-8">
-            <PieChart percentages={scores.percentages} />
+          <div ref={heroRef}>
+            <SummaryCard
+              primary={scores.primary}
+              secondary={scores.secondary}
+              percentages={scores.percentages}
+            />
+            <div className="mt-8">
+              <PieChart percentages={scores.percentages} />
+            </div>
+            {categoriesForInterpretation.length > 0 && (
+              <p className="mt-6 text-sm text-stone-600 dark:text-stone-500">
+                Based on your responses across:{' '}
+                {categoriesForInterpretation.map(getCategoryTitle).join(', ')}
+              </p>
+            )}
+            <ResultHeroActions
+              scores={scores}
+              heroRef={heroRef}
+              profileSlug={profileSlug ?? undefined}
+              completedModuleIds={[]}
+              selectedCategories={categoriesForInterpretation}
+              onSaveClick={profileSlug ? () => setSaveEmailOpen(true) : undefined}
+            />
           </div>
-          {categoriesForInterpretation.length > 0 && (
-            <p className="mt-6 text-sm text-stone-600 dark:text-stone-500">
-              Based on your responses across:{' '}
-              {categoriesForInterpretation.map(getCategoryTitle).join(', ')}
-            </p>
+          {profileSlug && (
+            <SaveEmailModal
+              isOpen={saveEmailOpen}
+              onClose={() => setSaveEmailOpen(false)}
+              scores={scores}
+              profileSlug={profileSlug}
+            />
           )}
         </Card>
 

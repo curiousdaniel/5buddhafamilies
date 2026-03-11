@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import type { FamilyScores } from '../types'
@@ -11,6 +11,8 @@ import ExpandableFamilies from '../components/results/ExpandableFamilies'
 import PersonalInterpretation from '../components/results/PersonalInterpretation'
 import ExplorationPanel from '../components/results/ExplorationPanel'
 import ExportActions from '../components/export/ExportActions'
+import ResultHeroActions from '../components/results/ResultHeroActions'
+import SaveEmailModal from '../components/export/SaveEmailModal'
 import { parseInterpretationSections } from '../lib/interpret'
 import { MODULES } from '../data/modules'
 import type { InterpretationSection } from '../hooks/useInterpretation'
@@ -36,6 +38,38 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<SavedProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [saveEmailOpen, setSaveEmailOpen] = useState(false)
+  const heroRef = useRef<HTMLDivElement>(null)
+
+  const handleModuleComplete = useCallback(
+    async (moduleId: string, content: string) => {
+      if (!profile?.slug) return
+      try {
+        await fetch('/api/profile/update', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            slug: profile.slug,
+            module: { id: moduleId, content },
+          }),
+        })
+        setProfile((prev) =>
+          prev
+            ? {
+                ...prev,
+                completedModules: [
+                  ...prev.completedModules.filter((m) => m.id !== moduleId),
+                  { id: moduleId, content },
+                ],
+              }
+            : null
+        )
+      } catch {
+        // Silent fail
+      }
+    },
+    [profile?.slug]
+  )
 
   useEffect(() => {
     if (!slug) return
@@ -101,20 +135,36 @@ export default function ProfilePage() {
         </div>
 
         <Card className="p-8">
-          <SummaryCard
-            primary={profile.scores.primary}
-            secondary={profile.scores.secondary}
-            percentages={profile.scores.percentages}
-          />
-          <div className="mt-8">
-            <PieChart percentages={profile.scores.percentages} />
+          <div ref={heroRef}>
+            <SummaryCard
+              primary={profile.scores.primary}
+              secondary={profile.scores.secondary}
+              percentages={profile.scores.percentages}
+            />
+            <div className="mt-8">
+              <PieChart percentages={profile.scores.percentages} />
+            </div>
+            {profile.selectedCategories.length > 0 && (
+              <p className="mt-6 text-sm text-stone-600 dark:text-stone-500">
+                Based on your responses across:{' '}
+                {profile.selectedCategories.map(getCategoryTitle).join(', ')}
+              </p>
+            )}
+            <ResultHeroActions
+              scores={profile.scores}
+              heroRef={heroRef}
+              profileSlug={profile.slug}
+              completedModuleIds={profile.completedModules.map((m) => m.id)}
+              selectedCategories={profile.selectedCategories}
+              onSaveClick={() => setSaveEmailOpen(true)}
+            />
           </div>
-          {profile.selectedCategories.length > 0 && (
-            <p className="mt-6 text-sm text-stone-600 dark:text-stone-500">
-              Based on your responses across:{' '}
-              {profile.selectedCategories.map(getCategoryTitle).join(', ')}
-            </p>
-          )}
+          <SaveEmailModal
+            isOpen={saveEmailOpen}
+            onClose={() => setSaveEmailOpen(false)}
+            scores={profile.scores}
+            profileSlug={profile.slug}
+          />
         </Card>
 
         <Card className="p-8">
@@ -128,6 +178,7 @@ export default function ProfilePage() {
         <Card className="p-8">
           <ExplorationPanel
             scores={profile.scores}
+            onModuleComplete={handleModuleComplete}
             preLoadedModules={profile.completedModules}
           />
         </Card>
