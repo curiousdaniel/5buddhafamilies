@@ -27,7 +27,7 @@ export async function exportToPng(element: HTMLElement, filename = 'buddha-famil
 export async function exportToPdf(element: HTMLElement, filename = 'buddha-family-results.pdf') {
   const canvas = await html2canvas(element, {
     backgroundColor: '#1A1612',
-    scale: 2,
+    scale: 1.5,
     useCORS: true,
   })
 
@@ -35,6 +35,7 @@ export async function exportToPdf(element: HTMLElement, filename = 'buddha-famil
     orientation: 'portrait',
     unit: 'pt',
     format: 'a4',
+    compress: true,
   })
 
   const margin = 20
@@ -58,9 +59,9 @@ export async function exportToPdf(element: HTMLElement, filename = 'buddha-famil
     const ctx = pageCanvas.getContext('2d')!
     ctx.drawImage(canvas, 0, srcY, canvas.width, srcHeight, 0, 0, canvas.width, srcHeight)
 
-    const imgData = pageCanvas.toDataURL('image/png')
+    const imgData = pageCanvas.toDataURL('image/jpeg', 0.88)
     const drawHeight = Math.min(contentHeight, scaledHeight - i * contentHeight)
-    pdf.addImage(imgData, 'PNG', margin, margin, contentWidth, drawHeight)
+    pdf.addImage(imgData, 'JPEG', margin, margin, contentWidth, drawHeight, undefined, 'FAST')
   }
 
   pdf.save(filename)
