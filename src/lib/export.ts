@@ -30,12 +30,38 @@ export async function exportToPdf(element: HTMLElement, filename = 'buddha-famil
     scale: 2,
     useCORS: true,
   })
-  const imgData = canvas.toDataURL('image/png')
+
   const pdf = new jsPDF({
     orientation: 'portrait',
-    unit: 'px',
-    format: [element.offsetWidth, element.offsetHeight],
+    unit: 'pt',
+    format: 'a4',
   })
-  pdf.addImage(imgData, 'PNG', 0, 0, element.offsetWidth, element.offsetHeight)
+
+  const margin = 20
+  const pageWidth = pdf.internal.pageSize.getWidth()
+  const pageHeight = pdf.internal.pageSize.getHeight()
+  const contentWidth = pageWidth - margin * 2
+  const contentHeight = pageHeight - margin * 2
+  const scale = contentWidth / canvas.width
+  const scaledHeight = canvas.height * scale
+  const pageCount = Math.ceil(scaledHeight / contentHeight)
+
+  for (let i = 0; i < pageCount; i++) {
+    if (i > 0) pdf.addPage()
+
+    const srcY = i * (contentHeight / scale)
+    const srcHeight = Math.min(contentHeight / scale, canvas.height - srcY)
+
+    const pageCanvas = document.createElement('canvas')
+    pageCanvas.width = canvas.width
+    pageCanvas.height = srcHeight
+    const ctx = pageCanvas.getContext('2d')!
+    ctx.drawImage(canvas, 0, srcY, canvas.width, srcHeight, 0, 0, canvas.width, srcHeight)
+
+    const imgData = pageCanvas.toDataURL('image/png')
+    const drawHeight = Math.min(contentHeight, scaledHeight - i * contentHeight)
+    pdf.addImage(imgData, 'PNG', margin, margin, contentWidth, drawHeight)
+  }
+
   pdf.save(filename)
 }
