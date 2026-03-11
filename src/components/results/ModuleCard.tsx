@@ -3,11 +3,9 @@ import { motion } from 'framer-motion'
 import type { FamilyScores } from '../../types'
 import type { Module } from '../../data/modules'
 import { getFamilyByCode } from '../../data/families'
-import { getFamilyImages } from '../../data/familyImages'
 import { useModuleInterpretation } from '../../hooks/useModuleInterpretation'
 import { parseInterpretationSections } from '../../lib/interpret'
 import MandalaSpinner from './MandalaSpinner'
-import SacredImage from '../shared/SacredImage'
 
 interface ModuleCardProps {
   module: Module
@@ -96,37 +94,20 @@ export default function ModuleCard({
             </h4>
             <span className="text-stone-500 text-xs">✓ Complete</span>
           </div>
-          <div className="flex gap-6">
-            <div className="flex-1 min-w-0 space-y-6 font-serif text-stone-300 leading-relaxed text-sm">
-              {sections
-                .filter((s) => s.complete)
-                .map((section) => (
-                  <section key={section.title}>
-                    <h5
-                      className="font-medium mb-2 text-base"
-                      style={{ color: primaryColor }}
-                    >
-                      {section.title}
-                    </h5>
-                    <div className="whitespace-pre-wrap">{section.body}</div>
-                  </section>
-                ))}
-            </div>
-            {module.id === 'spiritual_overview' && (() => {
-              const img = getFamilyImages(scores.primary)
-              const fam = getFamilyByCode(scores.primary)
-              return (
-                <div className="hidden sm:block shrink-0">
-                  <SacredImage
-                    src={img.buddhaImage}
-                    alt={`${img.buddhaName}, representing ${img.buddhaWisdom} of the ${fam.name} Family`}
-                    caption={img.buddhaName}
-                    familyCode={scores.primary}
-                    size="medium"
-                  />
-                </div>
-              )
-            })()}
+          <div className="space-y-6 font-serif text-stone-300 leading-relaxed text-sm">
+            {sections
+              .filter((s) => s.complete)
+              .map((section) => (
+                <section key={section.title}>
+                  <h5
+                    className="font-medium mb-2 text-base"
+                    style={{ color: primaryColor }}
+                  >
+                    {section.title}
+                  </h5>
+                  <div className="whitespace-pre-wrap">{section.body}</div>
+                </section>
+              ))}
           </div>
         </div>
       )}
