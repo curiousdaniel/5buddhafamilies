@@ -145,12 +145,23 @@ export default function ProfilePage() {
             <div className="mt-8">
               <PieChart percentages={profile.scores.percentages} />
             </div>
-            {profile.selectedCategories.length > 0 && (
-              <p className="mt-6 text-sm text-stone-600 dark:text-stone-500">
-                Based on your responses across:{' '}
-                {profile.selectedCategories.map(getCategoryTitle).join(', ')}
+            <div className="mt-6 space-y-2 text-center">
+              {profile.selectedCategories.length > 0 && (
+                <p className="text-sm text-stone-600 dark:text-stone-500">
+                  Based on your responses across:{' '}
+                  {profile.selectedCategories.map(getCategoryTitle).join(', ')}
+                </p>
+              )}
+              <p className="text-sm">
+                <button
+                  type="button"
+                  onClick={() => navigate('/categories?addMore=true')}
+                  className="text-gold-dark dark:text-gold hover:text-gold dark:hover:text-gold-light font-medium underline underline-offset-2"
+                >
+                  Answer more questions to update your profile
+                </button>
               </p>
-            )}
+            </div>
             <ResultHeroActions
               scores={profile.scores}
               heroRef={heroRef}

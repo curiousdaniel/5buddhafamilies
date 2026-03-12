@@ -110,21 +110,23 @@ export default function Results() {
             <div className="mt-8">
               <PieChart percentages={scores.percentages} />
             </div>
-            <p className="mt-6 text-sm text-stone-600 dark:text-stone-500">
-              {categoriesForInterpretation.length > 0 ? (
-                <>
+            <div className="mt-6 space-y-2 text-center">
+              {categoriesForInterpretation.length > 0 && (
+                <p className="text-sm text-stone-600 dark:text-stone-500">
                   Based on your responses across:{' '}
-                  {categoriesForInterpretation.map(getCategoryTitle).join(', ')}.{' '}
-                </>
-              ) : null}
-              <button
-                type="button"
-                onClick={() => navigate('/categories?addMore=true')}
-                className="text-gold-dark dark:text-gold hover:text-gold dark:hover:text-gold-light font-medium underline underline-offset-2"
-              >
-                Answer more questions to update your profile
-              </button>
-            </p>
+                  {categoriesForInterpretation.map(getCategoryTitle).join(', ')}
+                </p>
+              )}
+              <p className="text-sm">
+                <button
+                  type="button"
+                  onClick={() => navigate('/categories?addMore=true')}
+                  className="text-gold-dark dark:text-gold hover:text-gold dark:hover:text-gold-light font-medium underline underline-offset-2"
+                >
+                  Answer more questions to update your profile
+                </button>
+              </p>
+            </div>
             <ResultHeroActions
               scores={scores}
               heroRef={heroRef}
