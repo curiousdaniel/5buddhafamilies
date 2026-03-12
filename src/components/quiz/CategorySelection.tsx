@@ -9,19 +9,21 @@ export default function CategorySelection() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const showQuickTest = searchParams.get('admin') === 'true'
-  const { selectedCategories, setSelectedCategories, setQuestions, fillTestAnswers } = useQuizStore()
+  const { selectedCategories, setSelectedCategories, setQuestions, setQuestionsPreservingAnswers, fillTestAnswers } = useQuizStore()
+  const addMore = searchParams.get('addMore') === 'true'
 
   const toggleCategory = (id: string) => {
     setSelectedCategories(
       selectedCategories.includes(id)
         ? selectedCategories.filter((c) => c !== id)
-        : [...selectedCategories, id]
+        : [...selectedCategories, id],
+      addMore
     )
   }
 
-  const selectAll = () => setSelectedCategories(CATEGORIES.map((c) => c.id))
-  const selectEverydayPractice = () => setSelectedCategories(['secular', 'sacred'])
-  const clearAll = () => setSelectedCategories([])
+  const selectAll = () => setSelectedCategories(CATEGORIES.map((c) => c.id), addMore)
+  const selectEverydayPractice = () => setSelectedCategories(['secular', 'sacred'], addMore)
+  const clearAll = () => setSelectedCategories([], addMore)
 
   const totalQuestions = CATEGORIES.reduce(
     (sum, c) => sum + (selectedCategories.includes(c.id) ? c.questionCount : 0),
@@ -33,8 +35,13 @@ export default function CategorySelection() {
   const handleBegin = () => {
     const categories = selectedCategories.length > 0 ? selectedCategories : ['secular', 'sacred']
     const questions = getQuestionsForCategories(categories)
-    setQuestions(questions)
-    navigate('/quiz')
+    if (addMore) {
+      setQuestionsPreservingAnswers(questions)
+    } else {
+      setSelectedCategories(categories)
+      setQuestions(questions)
+    }
+    navigate(addMore ? '/quiz?addMore=true' : '/quiz')
   }
 
   const handleQuickTest = () => {
@@ -60,10 +67,12 @@ export default function CategorySelection() {
     >
       <div className="max-w-2xl mx-auto">
         <h1 className="font-serif text-3xl md:text-4xl font-semibold text-gold-dark dark:text-gold-light mb-2">
-          Choose Your Exploration
+          {addMore ? 'Add More Questions' : 'Choose Your Exploration'}
         </h1>
         <p className="text-stone-600 dark:text-stone-400 mb-8">
-          Select the areas of life you'd like to explore. You can choose one or as many as you like.
+          {addMore
+            ? 'Add more categories or keep your current selection. Your existing answers will be preserved and combined with any new responses.'
+            : "Select the areas of life you'd like to explore. You can choose one or as many as you like."}
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">

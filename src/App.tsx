@@ -9,6 +9,7 @@ import Results from './components/results/Results'
 import ProfilePage from './pages/ProfilePage'
 import ThemeToggle from './components/shared/ThemeToggle'
 import FeedbackLink from './components/shared/FeedbackLink'
+import AboutLink from './components/shared/AboutLink'
 import { useThemeStore } from './stores/themeStore'
 
 function App() {
@@ -22,7 +23,11 @@ function App() {
   return (
     <div className="bg-stone-100 dark:bg-dark text-stone-800 dark:text-stone-200">
       <ThemeToggle />
-      <FeedbackLink />
+      <div className="fixed bottom-4 left-4 flex items-center gap-3 z-40">
+        <AboutLink />
+        <span className="text-stone-400 dark:text-stone-500 text-xs">·</span>
+        <FeedbackLink />
+      </div>
       <Analytics />
       <Routes>
         <Route path="/" element={<QuizStart />} />

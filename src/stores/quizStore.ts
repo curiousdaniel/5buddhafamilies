@@ -7,8 +7,9 @@ interface QuizState {
   questions: Question[]
   answers: Record<string, string[]>
   currentIndex: number
-  setSelectedCategories: (categories: string[]) => void
+  setSelectedCategories: (categories: string[], preserveAnswers?: boolean) => void
   setQuestions: (questions: Question[]) => void
+  setQuestionsPreservingAnswers: (questions: Question[]) => void
   setAnswer: (questionId: string, optionIds: string[]) => void
   fillTestAnswers: (answers: Record<string, string[]>) => void
   toggleOption: (questionId: string, optionId: string) => void
@@ -29,10 +30,16 @@ export const useQuizStore = create<QuizState>()(
   persist(
     (set) => ({
       ...initialState,
-      setSelectedCategories: (selectedCategories) =>
-        set({ selectedCategories, answers: {}, currentIndex: 0 }),
+      setSelectedCategories: (selectedCategories, preserveAnswers) =>
+        set(() =>
+          preserveAnswers
+            ? { selectedCategories }
+            : { selectedCategories, answers: {}, currentIndex: 0 }
+        ),
       setQuestions: (questions) =>
         set({ questions, answers: {}, currentIndex: 0 }),
+      setQuestionsPreservingAnswers: (questions) =>
+        set({ questions, currentIndex: 0 }),
       setAnswer: (questionId, optionIds) =>
         set((s) => ({ answers: { ...s.answers, [questionId]: optionIds } })),
       fillTestAnswers: (answers) => set({ answers, currentIndex: 0 }),

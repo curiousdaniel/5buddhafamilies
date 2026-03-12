@@ -214,17 +214,33 @@ export default function ProfilePage() {
           />
         </Card>
 
-        <div className="text-center pb-8">
-          <button
-            type="button"
-            onClick={() => {
-              useQuizStore.getState().setSelectedCategories(profile.selectedCategories)
-              navigate('/categories')
-            }}
-            className="text-gold-dark dark:text-gold hover:text-gold dark:hover:text-gold-light underline"
-          >
-            Retake Quiz
-          </button>
+        <div className="text-center pb-8 space-y-2">
+          <div>
+            <button
+              type="button"
+              onClick={() => {
+                useQuizStore.getState().setSelectedCategories(profile.selectedCategories, true)
+                navigate('/categories?addMore=true')
+              }}
+              className="text-gold-dark dark:text-gold hover:text-gold dark:hover:text-gold-light underline"
+            >
+              Answer more questions
+            </button>
+            <span className="text-stone-500 dark:text-stone-500 mx-2">·</span>
+            <button
+              type="button"
+              onClick={() => {
+                useQuizStore.getState().setSelectedCategories(profile.selectedCategories)
+                navigate('/categories')
+              }}
+              className="text-gold-dark dark:text-gold hover:text-gold dark:hover:text-gold-light underline"
+            >
+              Retake Quiz
+            </button>
+          </div>
+          <p className="text-xs text-stone-500 dark:text-stone-500">
+            Add more answers to update your profile, or start fresh with a new quiz.
+          </p>
         </div>
       </div>
     </motion.div>

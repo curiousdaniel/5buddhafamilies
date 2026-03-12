@@ -111,10 +111,19 @@ export default function Results() {
               <PieChart percentages={scores.percentages} />
             </div>
             {categoriesForInterpretation.length > 0 && (
-              <p className="mt-6 text-sm text-stone-600 dark:text-stone-500">
-                Based on your responses across:{' '}
-                {categoriesForInterpretation.map(getCategoryTitle).join(', ')}
-              </p>
+              <div className="mt-6 space-y-2">
+                <p className="text-sm text-stone-600 dark:text-stone-500">
+                  Based on your responses across:{' '}
+                  {categoriesForInterpretation.map(getCategoryTitle).join(', ')}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => navigate('/categories?addMore=true')}
+                  className="text-sm text-gold-dark dark:text-gold hover:text-gold dark:hover:text-gold-light hover:underline"
+                >
+                  Answer more questions to update your profile
+                </button>
+              </div>
             )}
             <ResultHeroActions
               scores={scores}
@@ -179,14 +188,27 @@ export default function Results() {
           />
         </Card>
 
-        <div className="text-center">
-          <button
-            type="button"
-            onClick={() => navigate('/categories')}
-            className="text-gold-dark dark:text-gold hover:text-gold dark:hover:text-gold-light underline"
-          >
-            Retake Quiz
-          </button>
+        <div className="text-center space-y-2">
+          <div>
+            <button
+              type="button"
+              onClick={() => navigate('/categories?addMore=true')}
+              className="text-gold-dark dark:text-gold hover:text-gold dark:hover:text-gold-light underline"
+            >
+              Answer more questions
+            </button>
+            <span className="text-stone-500 dark:text-stone-500 mx-2">·</span>
+            <button
+              type="button"
+              onClick={() => navigate('/categories')}
+              className="text-gold-dark dark:text-gold hover:text-gold dark:hover:text-gold-light underline"
+            >
+              Retake Quiz
+            </button>
+          </div>
+          <p className="text-xs text-stone-500 dark:text-stone-500">
+            Add more answers to update your profile, or start fresh with a new quiz.
+          </p>
         </div>
       </div>
       <KoFiWidget />

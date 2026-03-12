@@ -41,7 +41,7 @@ export default function FeedbackLink() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed bottom-4 left-4 text-xs text-stone-500 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-400 hover:underline z-40"
+        className="text-xs text-stone-500 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-400 hover:underline"
       >
         Feedback
       </button>
