@@ -22,11 +22,15 @@ export default function QuizStart() {
 
         <Button
           onClick={() => navigate('/quiz-setup')}
-          className="w-full mb-6"
+          className="w-full mb-12"
           aria-label="Begin the quiz"
         >
           Begin the Quiz
         </Button>
+
+        <p className="text-xs text-stone-500 dark:text-stone-500 max-w-md mx-auto leading-relaxed">
+          This is a free quiz with no catch. Answer the questions and you&apos;ll receive your results at the end — no sign-up, no paywall, no complication. A public service meant to benefit beings, not a commercial application.
+        </p>
       </div>
     </motion.div>
   )
