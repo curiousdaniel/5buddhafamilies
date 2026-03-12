@@ -110,21 +110,21 @@ export default function Results() {
             <div className="mt-8">
               <PieChart percentages={scores.percentages} />
             </div>
-            <div className="mt-6 space-y-2">
-              {categoriesForInterpretation.length > 0 && (
-                <p className="text-sm text-stone-600 dark:text-stone-500">
+            <p className="mt-6 text-sm text-stone-600 dark:text-stone-500">
+              {categoriesForInterpretation.length > 0 ? (
+                <>
                   Based on your responses across:{' '}
-                  {categoriesForInterpretation.map(getCategoryTitle).join(', ')}
-                </p>
-              )}
+                  {categoriesForInterpretation.map(getCategoryTitle).join(', ')}.{' '}
+                </>
+              ) : null}
               <button
                 type="button"
                 onClick={() => navigate('/categories?addMore=true')}
-                className="text-sm text-gold-dark dark:text-gold hover:text-gold dark:hover:text-gold-light hover:underline"
+                className="text-gold-dark dark:text-gold hover:text-gold dark:hover:text-gold-light font-medium underline underline-offset-2"
               >
                 Answer more questions to update your profile
               </button>
-            </div>
+            </p>
             <ResultHeroActions
               scores={scores}
               heroRef={heroRef}
