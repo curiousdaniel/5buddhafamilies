@@ -17,6 +17,7 @@ import sendContemplations from "../api/cron/send-contemplations.js"
 import setupSchema from "../api/setup/schema.js"
 import sendTestEmail from "../api/send-test-email.js"
 import sendLinkEmail from "../api/send-link-email.js"
+import sendFeedback from "../api/send-feedback.js"
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -33,6 +34,7 @@ app.all("/api/cron/send-contemplations", (req, res) => sendContemplations(req, r
 app.get("/api/setup/schema", (req, res) => setupSchema(req, res))
 app.post("/api/send-test-email", (req, res) => sendTestEmail(req, res))
 app.post("/api/send-link-email", (req, res) => sendLinkEmail(req, res))
+app.post("/api/send-feedback", (req, res) => sendFeedback(req, res))
 
 app.post("/api/interpret", async (req, res) => {
   const { scores, moduleId, familyA, familyB, context, selectedCategories } = req.body

@@ -8,6 +8,7 @@ import QuizFlow from './components/quiz/QuizFlow'
 import Results from './components/results/Results'
 import ProfilePage from './pages/ProfilePage'
 import ThemeToggle from './components/shared/ThemeToggle'
+import FeedbackLink from './components/shared/FeedbackLink'
 import { useThemeStore } from './stores/themeStore'
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
   return (
     <div className="bg-stone-100 dark:bg-dark text-stone-800 dark:text-stone-200">
       <ThemeToggle />
+      <FeedbackLink />
       <Analytics />
       <Routes>
         <Route path="/" element={<QuizStart />} />
