@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react'
 import QuizStart from './components/quiz/QuizStart'
 import QuizModeSimple from './components/quiz/QuizModeSimple'
 import CategorySelection from './components/quiz/CategorySelection'
@@ -20,6 +21,7 @@ function App() {
   return (
     <div className="bg-stone-100 dark:bg-dark text-stone-800 dark:text-stone-200">
       <ThemeToggle />
+      <Analytics />
       <Routes>
         <Route path="/" element={<QuizStart />} />
         <Route path="/quiz-setup" element={<QuizModeSimple />} />
