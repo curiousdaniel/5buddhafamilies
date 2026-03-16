@@ -31,6 +31,9 @@ export default function QuizStart() {
         <p className="text-xs text-stone-500 dark:text-stone-500 max-w-md mx-auto leading-relaxed">
           This is a free quiz with no catch. Answer the questions and you&apos;ll receive your results at the end — no sign-up, no paywall, no complication. A public service meant to benefit beings, not a commercial application.
         </p>
+        <p className="text-xs text-stone-500 dark:text-stone-500 max-w-md mx-auto leading-relaxed mt-4">
+          This quiz is a personal project offering a fun, accessible way to explore the Five Buddha Families — it&apos;s not an official teaching tool of any lineage. The results are interpretive, based on common Vajrayana descriptions, and are meant to spark curiosity rather than replace study with qualified teachers. For deeper learning, seek out authentic Vajrayana teachings and texts.
+        </p>
       </div>
     </motion.div>
   )
