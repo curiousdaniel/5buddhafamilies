@@ -9,6 +9,9 @@
     "api/interpret.js": {
       "maxDuration": 60
     },
+    "api/profile/regenerate-interpretation.js": {
+      "maxDuration": 60
+    },
     "api/cron/send-contemplations.js": {
       "maxDuration": 300
     },

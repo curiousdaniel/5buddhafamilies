@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuizStore } from '../../stores/quizStore'
 import { getCategoryTitle } from '../../data/categories'
+import { isInterpretationTruncated } from '../../lib/interpret'
 import { useQuizProgress } from '../../hooks/useQuizProgress'
 import { useInterpretation } from '../../hooks/useInterpretation'
 import { useProfileSave } from '../../hooks/useProfileSave'
@@ -153,6 +154,8 @@ export default function Results() {
             scores={scores}
             sections={interpretation.sections}
             status={interpretation.status}
+            isTruncated={interpretation.status === 'done' && isInterpretationTruncated(interpretation.content)}
+            onRegenerate={interpretation.regenerate}
           />
         </Card>
 

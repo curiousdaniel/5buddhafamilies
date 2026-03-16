@@ -62,6 +62,21 @@ export function parseInterpretationSections(text: string): { title: string; body
   return sections
 }
 
+/** Expected interpretation has 7 sections and ends with a complete sentence. */
+const EXPECTED_SECTION_COUNT = 7
+
+export function isInterpretationTruncated(content: string): boolean {
+  if (!content || content.trim().length < 100) return true
+  const sections = parseInterpretationSections(content)
+  if (sections.length < EXPECTED_SECTION_COUNT) return true
+  const last = sections[sections.length - 1]
+  const body = last?.body?.trim() ?? ''
+  if (body.length < 50) return true
+  const lastChar = body.slice(-1)
+  const endsWithSentence = lastChar === '.' || lastChar === '!' || lastChar === '?'
+  return !endsWithSentence
+}
+
 export function getCompletedModules(
   scores: FamilyScores,
   modules: { id: string; title: string }[]

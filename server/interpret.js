@@ -155,7 +155,7 @@ export async function createInterpretationStream(scores, selectedCategories = []
 
   const stream = await client.messages.create({
     model: "claude-sonnet-4-20250514",
-    max_tokens: 2000,
+    max_tokens: 3000,
     temperature: 0.7,
     system: SYSTEM_PROMPT,
     messages: [{ role: "user", content: userMessage }],

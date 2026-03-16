@@ -8,12 +8,18 @@ interface PersonalInterpretationProps {
   scores: FamilyScores
   sections: InterpretationSection[]
   status: InterpretationStatus
+  isTruncated?: boolean
+  onRegenerate?: () => void
+  regenerating?: boolean
 }
 
 export default function PersonalInterpretation({
   scores,
   sections,
   status,
+  isTruncated = false,
+  onRegenerate,
+  regenerating = false,
 }: PersonalInterpretationProps) {
   const primaryColor = getFamilyByCode(scores.primary).color
 
@@ -29,10 +35,21 @@ export default function PersonalInterpretation({
   if (status === 'error') {
     return (
       <div className="py-8">
-        <p className="text-stone-500 text-center">
+        <p className="text-stone-500 text-center mb-4">
           We were unable to generate your personal reading at this time. Your score results are
           shown below.
         </p>
+        {onRegenerate && (
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={onRegenerate}
+              className="text-gold-dark dark:text-gold hover:text-gold dark:hover:text-gold-light font-medium underline underline-offset-2"
+            >
+              Try again
+            </button>
+          </div>
+        )}
       </div>
     )
   }
@@ -71,6 +88,21 @@ export default function PersonalInterpretation({
             </motion.section>
           ))}
       </div>
+      {isTruncated && onRegenerate && (
+        <div className="pt-4 border-t border-stone-600/50">
+          <p className="text-sm text-stone-500 dark:text-stone-400 mb-3">
+            Your interpretation appears to have been cut off. Would you like to generate it again?
+          </p>
+          <button
+            type="button"
+            onClick={onRegenerate}
+            disabled={regenerating}
+            className="text-gold-dark dark:text-gold hover:text-gold dark:hover:text-gold-light font-medium underline underline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {regenerating ? 'Regenerating...' : 'Regenerate interpretation'}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

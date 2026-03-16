@@ -57,16 +57,18 @@ export function useInterpretation(scores: FamilyScores | null, selectedCategorie
   const [status, setStatus] = useState<InterpretationStatus>('idle')
   const [error, setError] = useState<Error | null>(null)
 
-  const fetchAndStream = useCallback(async () => {
+  const fetchAndStream = useCallback(async (skipCache = false) => {
     if (!scores) return
 
     const cacheKey = getInterpretationCacheKey(scores)
-    const cached = sessionStorage.getItem(cacheKey)
-    if (cached) {
-      setContent(cached)
-      setSections(parseSectionsFromText(cached))
-      setStatus('done')
-      return
+    if (!skipCache) {
+      const cached = sessionStorage.getItem(cacheKey)
+      if (cached) {
+        setContent(cached)
+        setSections(parseSectionsFromText(cached))
+        setStatus('done')
+        return
+      }
     }
 
     setStatus('loading')
@@ -112,11 +114,17 @@ export function useInterpretation(scores: FamilyScores | null, selectedCategorie
     }
   }, [scores, selectedCategories])
 
+  const regenerate = useCallback(() => {
+    if (!scores) return
+    sessionStorage.removeItem(getInterpretationCacheKey(scores))
+    fetchAndStream(true)
+  }, [scores, fetchAndStream])
+
   useEffect(() => {
     if (scores) {
       fetchAndStream()
     }
   }, [scores, fetchAndStream])
 
-  return { content, sections, status, error }
+  return { content, sections, status, error, regenerate }
 }

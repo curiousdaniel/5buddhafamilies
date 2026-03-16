@@ -13,7 +13,7 @@ import ExplorationPanel from '../components/results/ExplorationPanel'
 import ExportActions from '../components/export/ExportActions'
 import ResultHeroActions from '../components/results/ResultHeroActions'
 import SaveEmailModal from '../components/export/SaveEmailModal'
-import { parseInterpretationSections } from '../lib/interpret'
+import { parseInterpretationSections, isInterpretationTruncated } from '../lib/interpret'
 import { MODULES } from '../data/modules'
 import type { InterpretationSection } from '../hooks/useInterpretation'
 import { useQuizStore } from '../stores/quizStore'
@@ -39,6 +39,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [saveEmailOpen, setSaveEmailOpen] = useState(false)
+  const [regenerating, setRegenerating] = useState(false)
   const heroRef = useRef<HTMLDivElement>(null)
   const exportCardRef = useRef<HTMLDivElement>(null)
 
@@ -117,6 +118,27 @@ export default function ProfilePage() {
   const sections: InterpretationSection[] = parseInterpretationSections(profile.coreInterpretation).map(
     (s) => ({ ...s, complete: true })
   )
+  const interpretationTruncated = isInterpretationTruncated(profile.coreInterpretation)
+
+  const handleRegenerateInterpretation = async () => {
+    if (!profile?.slug || regenerating) return
+    setRegenerating(true)
+    try {
+      const res = await fetch('/api/profile/regenerate-interpretation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug: profile.slug }),
+      })
+      if (!res.ok) throw new Error('Regeneration failed')
+      const { coreInterpretation } = await res.json()
+      setProfile((prev) => (prev ? { ...prev, coreInterpretation } : null))
+    } catch {
+      // Silent fail - user can try again
+    } finally {
+      setRegenerating(false)
+    }
+  }
+
   const savedDate = new Date(profile.createdAt).toLocaleDateString(undefined, {
     year: 'numeric',
     month: 'long',
@@ -185,6 +207,9 @@ export default function ProfilePage() {
             scores={profile.scores}
             sections={sections}
             status="done"
+            isTruncated={interpretationTruncated}
+            onRegenerate={handleRegenerateInterpretation}
+            regenerating={regenerating}
           />
         </Card>
 
