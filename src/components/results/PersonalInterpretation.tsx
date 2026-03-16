@@ -11,6 +11,7 @@ interface PersonalInterpretationProps {
   isTruncated?: boolean
   onRegenerate?: () => void
   regenerating?: boolean
+  regenerateError?: boolean
 }
 
 export default function PersonalInterpretation({
@@ -20,6 +21,7 @@ export default function PersonalInterpretation({
   isTruncated = false,
   onRegenerate,
   regenerating = false,
+  regenerateError = false,
 }: PersonalInterpretationProps) {
   const primaryColor = getFamilyByCode(scores.primary).color
 
@@ -93,6 +95,11 @@ export default function PersonalInterpretation({
           <p className="text-sm text-stone-500 dark:text-stone-400 mb-3">
             Your interpretation appears to have been cut off. Would you like to generate it again?
           </p>
+          {regenerateError && (
+            <p className="text-sm text-red-400 dark:text-red-400 mb-2">
+              Regeneration failed. Please try again.
+            </p>
+          )}
           <button
             type="button"
             onClick={onRegenerate}

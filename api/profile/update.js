@@ -16,12 +16,29 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Server configuration error' })
   }
 
-  const { slug, module: newModule } = req.body || {}
-  if (!slug || !newModule || !newModule.id || !newModule.content) {
-    return res.status(400).json({ error: 'Missing slug or module (id, content)' })
+  const { slug, module: newModule, coreInterpretation } = req.body || {}
+
+  if (!slug) {
+    return res.status(400).json({ error: 'Missing slug' })
   }
 
   const supabase = createClient(supabaseUrl, supabaseKey)
+
+  if (coreInterpretation !== undefined) {
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ core_interpretation: coreInterpretation })
+      .eq('slug', slug)
+
+    if (updateError) {
+      return res.status(500).json({ error: 'Failed to update profile' })
+    }
+    return res.status(200).json({ success: true })
+  }
+
+  if (!newModule || !newModule.id || !newModule.content) {
+    return res.status(400).json({ error: 'Missing module (id, content)' })
+  }
 
   const { data: profile, error: fetchError } = await supabase
     .from('profiles')

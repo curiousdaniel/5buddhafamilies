@@ -13,7 +13,7 @@ import ExplorationPanel from '../components/results/ExplorationPanel'
 import ExportActions from '../components/export/ExportActions'
 import ResultHeroActions from '../components/results/ResultHeroActions'
 import SaveEmailModal from '../components/export/SaveEmailModal'
-import { parseInterpretationSections, isInterpretationTruncated } from '../lib/interpret'
+import { parseInterpretationSections, isInterpretationTruncated, scoresToApiFormat } from '../lib/interpret'
 import { MODULES } from '../data/modules'
 import type { InterpretationSection } from '../hooks/useInterpretation'
 import { useQuizStore } from '../stores/quizStore'
@@ -40,6 +40,7 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null)
   const [saveEmailOpen, setSaveEmailOpen] = useState(false)
   const [regenerating, setRegenerating] = useState(false)
+  const [regenerateError, setRegenerateError] = useState(false)
   const heroRef = useRef<HTMLDivElement>(null)
   const exportCardRef = useRef<HTMLDivElement>(null)
 
@@ -123,17 +124,33 @@ export default function ProfilePage() {
   const handleRegenerateInterpretation = async () => {
     if (!profile?.slug || regenerating) return
     setRegenerating(true)
+    setRegenerateError(false)
     try {
-      const res = await fetch('/api/profile/regenerate-interpretation', {
+      const apiScores = scoresToApiFormat(profile.scores)
+      const res = await fetch('/api/interpret', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug: profile.slug }),
+        body: JSON.stringify({ scores: apiScores, selectedCategories: profile.selectedCategories }),
       })
-      if (!res.ok) throw new Error('Regeneration failed')
-      const { coreInterpretation } = await res.json()
-      setProfile((prev) => (prev ? { ...prev, coreInterpretation } : null))
+      if (!res.ok) throw new Error('Interpretation failed')
+      const reader = res.body?.getReader()
+      if (!reader) throw new Error('No response body')
+      const decoder = new TextDecoder()
+      let fullText = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        fullText += decoder.decode(value, { stream: true })
+      }
+      const updateRes = await fetch('/api/profile/update', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug: profile.slug, coreInterpretation: fullText }),
+      })
+      if (!updateRes.ok) throw new Error('Failed to save')
+      setProfile((prev) => (prev ? { ...prev, coreInterpretation: fullText } : null))
     } catch {
-      // Silent fail - user can try again
+      setRegenerateError(true)
     } finally {
       setRegenerating(false)
     }
@@ -210,6 +227,7 @@ export default function ProfilePage() {
             isTruncated={interpretationTruncated}
             onRegenerate={handleRegenerateInterpretation}
             regenerating={regenerating}
+            regenerateError={regenerateError}
           />
         </Card>
 
