@@ -63,6 +63,7 @@ export default async function handler(req, res) {
             isWelcome: false,
             unsubscribeUrl,
             profileSlug: sub.profile_slug,
+            contextDate: now,
           })
 
           await resend.emails.send({

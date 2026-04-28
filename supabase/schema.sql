@@ -17,6 +17,8 @@ create table if not exists profiles (
 
 create index if not exists profiles_slug_idx on profiles (slug);
 
+alter table profiles enable row level security;
+
 create table if not exists email_subscriptions (
   id uuid primary key default gen_random_uuid(),
   created_at timestamp with time zone default now(),
@@ -33,3 +35,5 @@ create table if not exists email_subscriptions (
 
 create index if not exists email_subscriptions_email_idx on email_subscriptions (email);
 create index if not exists email_subscriptions_frequency_idx on email_subscriptions (frequency, active, last_sent_at);
+
+alter table email_subscriptions enable row level security;
