@@ -88,7 +88,7 @@ export function getNorthernHemisphereSeasonContext(date = new Date()) {
     seasonKey,
     seasonLabel,
     seasonGuidance,
-    block: `CALENDAR CONTEXT (Northern Hemisphere — use this for any seasonal, weather, or time-of-year imagery; do not contradict it):
+    block: `CALENDAR CONTEXT (Northern Hemisphere — accuracy only when you choose to mention season, weather, or time of year; never required as an opener):
 - Today's date is US Eastern Time (${US_EASTERN_TZ}): ${dateLine}
 - Season: ${seasonLabel} (${seasonKey})
 - Guidance: ${seasonGuidance}`,
@@ -154,6 +154,97 @@ export function getContemplationFocusAreaForDate(date = new Date()) {
   return CONTEMPLATION_FOCUS_AREAS[idx]
 }
 
+/** Rotates daily so opening reflections do not all start the same way (season + weekday, etc.). */
+const OPENING_REFLECTION_APPROACHES = [
+  {
+    label: 'focus scene',
+    instruction:
+      'Open with a vivid, specific moment from today\'s focus territory (work, body, relationship, practice — whatever fits). No season, weather, month, or weekday in the first two sentences.',
+  },
+  {
+    label: 'inner question',
+    instruction:
+      'Open with a single honest question or inward observation that lands the reader inside today\'s focus — not about the calendar. No season or weather in the first two sentences.',
+  },
+  {
+    label: 'teaching image',
+    instruction:
+      'Open with a brief image, metaphor, or line of dharma that illuminates today\'s focus — not the time of year. No season or weather in the first two sentences.',
+  },
+  {
+    label: 'primary in the body',
+    instruction:
+      'Open with how their primary family energy might be felt in the body or nervous system right now, tied to today\'s focus. No season or weather in the first two sentences.',
+  },
+  {
+    label: 'primary–secondary tension',
+    instruction:
+      'Open with the creative tension or dialogue between their primary and secondary families as they meet today\'s focus. No season or weather in the first two sentences.',
+  },
+  {
+    label: 'quieter family voice',
+    instruction:
+      'Open by naming something true from one of their lower-scoring families (not primary or secondary) — a whisper, blind spot, or underused resource — in relation to today\'s focus. No season or weather in the first two sentences.',
+  },
+  {
+    label: 'direct address',
+    instruction:
+      'Open with a warm, direct "you" statement about human experience in today\'s focus territory — concrete, not atmospheric. No season or weather in the first two sentences.',
+  },
+  {
+    label: 'composition weave',
+    instruction:
+      'Open by describing how two or three of their family percentages work together as a blend (not a list of scores) in the territory of today\'s focus. No season or weather in the first two sentences.',
+  },
+  {
+    label: 'season optional (late)',
+    instruction:
+      'You may use season or time-of-day imagery only if it serves the reflection — and only after the first two sentences, never as the hook. Lead with today\'s focus or their composition instead.',
+  },
+]
+
+export function getOpeningReflectionApproachForDate(date = new Date()) {
+  const n = usEasternCalendarDayNumber(date)
+  const idx =
+    ((n % OPENING_REFLECTION_APPROACHES.length) + OPENING_REFLECTION_APPROACHES.length) %
+    OPENING_REFLECTION_APPROACHES.length
+  return OPENING_REFLECTION_APPROACHES[idx]
+}
+
+const FAMILY_SCORE_KEYS = {
+  Buddha: 'buddha',
+  Vajra: 'vajra',
+  Ratna: 'ratna',
+  Padma: 'padma',
+  Karma: 'karma',
+}
+
+/** Structured hints so the model treats the profile as a five-way blend, not only primary. */
+export function describeCompositionBlend(scores, primaryFamily, secondaryFamily) {
+  const ranked = Object.entries(FAMILY_SCORE_KEYS)
+    .map(([name, key]) => ({ name, pct: Math.round(scores[key] ?? 0) }))
+    .sort((a, b) => b.pct - a.pct)
+
+  const above15 = ranked.filter((r) => r.pct >= 15).map((r) => `${r.name} (${r.pct}%)`)
+  const mid = ranked.filter((r) => r.pct >= 10 && r.pct < 15).map((r) => `${r.name} (${r.pct}%)`)
+  const low = ranked.filter((r) => r.pct < 10).map((r) => `${r.name} (${r.pct}%)`)
+
+  const tertiary = ranked.find((r) => r.name !== primaryFamily && r.name !== secondaryFamily)?.name
+
+  const lines = [
+    'COMPOSITION BLEND (honor all five energies across the email — primary leads but is not the whole story):',
+    `- Ranked: ${ranked.map((r) => `${r.name} ${r.pct}%`).join(', ')}`,
+    `- Primary ${primaryFamily} and secondary ${secondaryFamily} shape the leading tone; ${tertiary ? `also let ${tertiary} (and other meaningful percentages) show up` : 'also let other meaningful percentages show up'} in practice and journal, not only in passing.`,
+  ]
+  if (above15.length) lines.push(`- Strong presences (≥15%): ${above15.join(', ')} — weave together, do not list separately.`)
+  if (mid.length) lines.push(`- Background flavors (10–14%): ${mid.join(', ')} — name when relevant.`)
+  if (low.length) lines.push(`- Quieter energies (<10%): ${low.join(', ')} — occasional blind spots or underused resources worth a sentence.`)
+  lines.push(
+    `- A ${primaryFamily}–${secondaryFamily} person is not generic "${primaryFamily}"; the gap between families and closeness of scores matter. Reference the actual percentages when it sharpens the reflection.`,
+  )
+  return lines.join('\n')
+}
+
 function escapeHtml(s) {
   return String(s)
     .replace(/&/g, '&amp;')
@@ -162,24 +253,28 @@ function escapeHtml(s) {
     .replace(/"/g, '&quot;')
 }
 
-const CONTEMPLATION_SYSTEM_PROMPT = `You are a wise and warm dharma teacher generating a personalized contemplation email for a practitioner who has discovered their Buddha Family composition through a quiz. You know their primary and secondary family energies and their full score composition.
+const CONTEMPLATION_SYSTEM_PROMPT = `You are a wise and warm dharma teacher generating a personalized contemplation email for a practitioner who has discovered their Buddha Family composition through a quiz. You know their primary and secondary family energies and their full five-family score composition as a gradient blend.
 
 Your task is to write a complete, self-contained contemplation email. The recipient does not need to visit any website or app to engage with this — everything they need is in the email itself.
 
-**Seasonal and temporal accuracy:** The user message includes a CALENDAR CONTEXT block for the Northern Hemisphere; the stated calendar date is US Eastern Time. Whenever you mention seasons, weather, quality of light, length of day, or time of year in the opening reflection (or elsewhere), it MUST match that context. Do not describe winter, snow, or "early winter" light when the context says spring or summer, and vice versa. If you prefer not to use season at all, you may focus on time of day or inner experience instead — but never invent the wrong season.
+**Opening variety (critical):** The user message assigns exactly one OPENING APPROACH for today — follow it for Part 1. Do not default to season, weather, month name, or weekday in the first sentence. Avoid this stale formula entirely: "[Season/time] air/light carries [quality] this [weekday] morning, yet even in this season of [renewal/harvest/etc.], [hardship metaphor]." Most emails should not mention season at all; when you do, it must be accurate (see calendar context) and usually not in the opening hook.
 
-**Today's focus area:** The user message includes a TODAY'S FOCUS AREA block (one of the domains the quiz already explores). Seed the entire email from that lens: the opening reflection, contemplation practice, and journal prompt should each clearly live in that territory — not by repeating its title as a slogan, but through concrete situations, questions, and felt life. Their Buddha Family composition remains the thread: the focus area is the *where* and *what*, the family energies are the *how* they meet it. Do not drift into a generic dharma talk unrelated to today's focus.
+**Seasonal and temporal accuracy:** The user message may include a CALENDAR CONTEXT block. If you mention seasons, weather, quality of light, or time of year anywhere, it MUST match that context — never invent the wrong season. Calendar details are optional texture, not a required frame.
+
+**Five-family blend (critical):** The user message includes a COMPOSITION BLEND block. Treat percentages as a living mix: primary leads the tone, secondary colors and complicates it, and other families (especially those ≥15%, then 10–14%, then quieter scores) belong in the fabric of the email. Do not write as if only the primary family exists. A Vajra–Padma blend differs sharply from Vajra–Karma — make the specific pairing vivid. In Part 2 and Part 3, explicitly draw on at least one family energy beyond the primary (often secondary or a strong tertiary score).
+
+**Today's focus area:** The user message includes a TODAY'S FOCUS AREA block (one of the domains the quiz already explores). Seed the entire email from that lens: the opening reflection, contemplation practice, and journal prompt should each clearly live in that territory — not by repeating its title as a slogan, but through concrete situations, questions, and felt life. The focus area is the *where* and *what*; the five-family blend is the *how* they meet it. Do not drift into a generic dharma talk unrelated to today's focus.
 
 The email has three parts:
 
 **Part 1: Opening Reflection (150–200 words)**
-A warm, personal opening reflection addressed directly to the reader. Ground it in the season, time of day, or a simple observation about the nature of their primary family energy as it might be showing up right now in their daily life — specifically in connection with today's focus area. Make it feel timely and alive, not generic. Draw on different aspects of the family's wisdom, neurosis, transmutation, element, color, or associated teachings as they meet this focus.
+A warm, personal opening reflection addressed directly to the reader. Follow today's assigned OPENING APPROACH. Connect to today's focus area and their composition blend — not only primary energy. Make it feel alive and specific to this person, not a template. Vary which families, teachings, elements, or kleshas you emphasize from send to send.
 
 **Part 2: Contemplation Practice (100–150 words)**
-A specific contemplation or short practice for the day or week. This should be concrete and doable — something the reader can actually sit with for 5–15 minutes. It should be directly related to their primary family energy and keyed to either working with their primary confused emotion or deepening their access to their corresponding wisdom, while staying rooted in today's focus area. Vary the form: sometimes a sitting practice, sometimes a walking reflection, sometimes a relational observation to carry through the day.
+A specific contemplation or short practice for the day or week. Concrete and doable in 5–15 minutes. Rooted in today's focus area. Led by primary wisdom/klesha but intentionally include how secondary (or another strong score) modifies the practice — e.g. what to watch for, what to invite, or where the two energies meet on the cushion or in daily life. Vary the form: sitting, walking, relational observation, or body-based inquiry.
 
 **Part 3: Klesha Journal Prompt (80–120 words)**
-A single, carefully crafted journal prompt designed to help the reader notice their primary neurotic pattern in action during ordinary life — with today's focus area as the scene. The prompt should be specific enough to be useful but open enough to allow genuine reflection. It should feel like a question a skilled teacher would ask — pointed, compassionate, and free of judgment. Frame it as an invitation rather than a diagnosis. Include 2–3 follow-up sub-questions to deepen the inquiry.
+A single journal prompt with today's focus area as the scene. Primary neurotic pattern stays central, but frame it where secondary or another meaningful percentage complicates, softens, or sharpens the pattern — so the prompt reflects their blend, not a one-family caricature. Specific yet open; compassionate, not diagnostic. Include 2–3 follow-up sub-questions. At least one sub-question should invite noticing a non-primary family energy in the situation.
 
 **Tone throughout:** Warm, direct, and spiritually grounded. Like a letter from a teacher who knows you and wants the best for you. Never preachy. Never generic. Every sentence earned.
 
@@ -281,6 +376,8 @@ export async function generateContemplationEmail({
   const profileUrl = profileSlug ? `${appUrl}/profile/${profileSlug}` : appUrl
 
   const focusArea = getContemplationFocusAreaForDate(contextDate)
+  const openingApproach = getOpeningReflectionApproachForDate(contextDate)
+  const compositionBlend = describeCompositionBlend(scores, primaryFamily, secondaryFamily)
 
   const scoreStr = [
     `Buddha ${Math.round(scores.buddha ?? 0)}%`,
@@ -302,6 +399,12 @@ Frequency: ${frequency}
 TODAY'S FOCUS AREA (seed the entire email through this lens — opening, practice, and journal):
 - Title: ${focusArea.title}
 - Territory: ${focusArea.description}
+
+OPENING APPROACH FOR TODAY (Part 1 only — required):
+- Style: ${openingApproach.label}
+- Instruction: ${openingApproach.instruction}
+
+${compositionBlend}
 
 ${calendar.block}`
 
