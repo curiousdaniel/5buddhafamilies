@@ -154,7 +154,7 @@ export async function createInterpretationStream(scores, selectedCategories = []
   const userMessage = buildUserMessage(scores, selectedCategories)
 
   const stream = await client.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model: "claude-sonnet-4-6",
     max_tokens: 3000,
     temperature: 0.7,
     system: SYSTEM_PROMPT,
@@ -192,7 +192,7 @@ export async function* streamModuleInterpretation(scores, moduleId) {
 
   const client = new Anthropic({ apiKey })
   const stream = await client.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model: "claude-sonnet-4-6",
     max_tokens: 2000,
     temperature: 0.7,
     system: systemPrompt,
@@ -228,7 +228,7 @@ export async function* streamPairingInterpretation(familyA, familyB, context) {
 
   const client = new Anthropic({ apiKey })
   const stream = await client.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model: "claude-sonnet-4-6",
     max_tokens: 2000,
     temperature: 0.7,
     system: systemPrompt,

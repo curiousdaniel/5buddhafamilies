@@ -419,7 +419,7 @@ This is the subscriber's first email. Begin with a warm welcome that acknowledge
 
   const anthropic = new Anthropic({ apiKey })
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-sonnet-4-6',
     max_tokens: 1500,
     temperature: 0.9,
     system: CONTEMPLATION_SYSTEM_PROMPT,
